@@ -4,7 +4,7 @@
 
 library(shiny)
 package.BoneProfileR <- require('BoneProfileR')
-version <- "2.0 build 693"
+version <- "2.0-2 build 717"
 
 # 
 # mycss <- "

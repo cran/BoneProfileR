@@ -5,6 +5,7 @@
 #' @param fitted.parameters Parameters of the model to be fitted
 #' @param bone The bone image to be used
 #' @param fixed.parameters Fixed parameters of the model
+#' @param priors Priors used for intermediate estimations
 #' @param replicates.CI Number of replicates to estimate confidence interval
 #' @param analysis Name or rank of analysis
 #' @param twosteps Does a 2-steps analysis be performed?
@@ -53,6 +54,7 @@
 
 
 BP_FitMLCompactness <- function(bone, fitted.parameters=c(P=0.5, S=0.05, Min=0.001, Max=0.999),
+                                priors=NULL, 
                                 fixed.parameters=c(K1=1, K2=1), twosteps=TRUE, 
                                 replicates.CI=10000, analysis=1, silent=FALSE) {
   
@@ -61,8 +63,8 @@ BP_FitMLCompactness <- function(bone, fitted.parameters=c(P=0.5, S=0.05, Min=0.0
   # BP_LnLCompactness(par=fitted.parameters, bone, data_m=NULL, data_nm=NULL, distance.center=NULL, fixed.parameters=fixed.parameters, analysis=analysis)
   
   
-  lower_limit <- c(P=0, S=-2, Min=0, Max=0.2, K1=-10, k2=-10)
-  upper_limit <- c(P=1, S=2, Min=0.8, Max=1, K1=10, k2=10)
+  lower_limit <- c(P=0, S=-2, Min=0, Max=0.2, K1=-1000, k2=-1000)
+  upper_limit <- c(P=1, S=2, Min=0.8, Max=1, K1=1000, k2=1000)
   lower <- lower_limit[names(fitted.parameters)]
   upper <- upper_limit[names(fitted.parameters)]
   
@@ -74,75 +76,76 @@ BP_FitMLCompactness <- function(bone, fitted.parameters=c(P=0.5, S=0.05, Min=0.0
   if (twosteps) {
     # lancement en mcmc
     p <- o$par
-    priors <- data.frame(Density=character(), 
-                         Prior1=numeric(), 
-                         Prior2=numeric(), 
-                         SDProp=numeric(), 
-                         Min=numeric(), 
-                         Max=numeric(), 
-                         Init=numeric(), stringsAsFactors = FALSE)
-    
-    if (!is.na(p["P"])) {
-      priors <- rbind(priors, data.frame(Density="dunif", 
-                                         Prior1=0, 
-                                         Prior2=1, 
-                                         SDProp=0.005, 
-                                         Min=0, 
-                                         Max=1, 
-                                         Init=unname(p["P"]), stringsAsFactors = FALSE, 
-                                         row.names = "P"))
+    if (is.null(priors)) {
+      priors <- data.frame(Density=character(), 
+                           Prior1=numeric(), 
+                           Prior2=numeric(), 
+                           SDProp=numeric(), 
+                           Min=numeric(), 
+                           Max=numeric(), 
+                           Init=numeric(), stringsAsFactors = FALSE)
+      
+      if (!is.na(p["P"])) {
+        priors <- rbind(priors, data.frame(Density="dunif", 
+                                           Prior1=0, 
+                                           Prior2=1, 
+                                           SDProp=0.005, 
+                                           Min=0, 
+                                           Max=1, 
+                                           Init=unname(p["P"]), stringsAsFactors = FALSE, 
+                                           row.names = "P"))
+      }
+      if (!is.na(p["S"])) {
+        priors <- rbind(priors, data.frame(Density="dunif", 
+                                           Prior1=0, 
+                                           Prior2=max(c(unname(p["S"])*2, +10)), 
+                                           SDProp=0.3, 
+                                           Min=0, 
+                                           Max=max(c(unname(p["S"])*2, +10)), 
+                                           Init=unname(p["S"]), stringsAsFactors = FALSE, 
+                                           row.names = "S"))
+      }
+      if (!is.na(p["Min"])) {
+        priors <- rbind(priors, data.frame(Density="dunif", 
+                                           Prior1=0, 
+                                           Prior2=0.8, 
+                                           SDProp=0.2, 
+                                           Min=0, 
+                                           Max=0.8, 
+                                           Init=unname(p["Min"]), stringsAsFactors = FALSE, 
+                                           row.names = "Min"))
+      }
+      if (!is.na(p["Max"])) {
+        priors <- rbind(priors, data.frame(Density="dunif", 
+                                           Prior1=0.2, 
+                                           Prior2=1, 
+                                           SDProp=0.2, 
+                                           Min=0.2, 
+                                           Max=1, 
+                                           Init=unname(p["Max"]), stringsAsFactors = FALSE, 
+                                           row.names = "Max"))
+      }
+      if (!is.na(p["K1"])) {
+        priors <- rbind(priors, data.frame(Density="dunif", 
+                                           Prior1=min(c(unname(p["K1"])*2, -10)), 
+                                           Prior2=max(c(unname(p["K1"])*2, +10)), 
+                                           SDProp=0.2, 
+                                           Min=min(c(unname(p["K1"])*2, -10)), 
+                                           Max=max(c(unname(p["K1"])*2, +10)), 
+                                           Init=unname(p["K1"]), stringsAsFactors = FALSE, 
+                                           row.names = "K1"))
+      }
+      if (!is.na(p["K2"])) {
+        priors <- rbind(priors, data.frame(Density="dunif", 
+                                           Prior1=min(c(unname(p["K2"])*2, -10)), 
+                                           Prior2=max(c(unname(p["K2"])*2, +10)), 
+                                           SDProp=0.2, 
+                                           Min=min(c(unname(p["K2"])*2, -10)), 
+                                           Max=max(c(unname(p["K2"])*2, +10)), 
+                                           Init=unname(p["K2"]), stringsAsFactors = FALSE, 
+                                           row.names = "K2"))
+      }
     }
-    if (!is.na(p["S"])) {
-      priors <- rbind(priors, data.frame(Density="dunif", 
-                                         Prior1=0, 
-                                         Prior2=10, 
-                                         SDProp=0.3, 
-                                         Min=0, 
-                                         Max=10, 
-                                         Init=unname(p["S"]), stringsAsFactors = FALSE, 
-                                         row.names = "S"))
-    }
-    if (!is.na(p["Min"])) {
-      priors <- rbind(priors, data.frame(Density="dunif", 
-                                         Prior1=0, 
-                                         Prior2=0.8, 
-                                         SDProp=0.2, 
-                                         Min=0, 
-                                         Max=0.8, 
-                                         Init=unname(p["Min"]), stringsAsFactors = FALSE, 
-                                         row.names = "Min"))
-    }
-    if (!is.na(p["Max"])) {
-      priors <- rbind(priors, data.frame(Density="dunif", 
-                                         Prior1=0.2, 
-                                         Prior2=1, 
-                                         SDProp=0.2, 
-                                         Min=0.2, 
-                                         Max=1, 
-                                         Init=unname(p["Max"]), stringsAsFactors = FALSE, 
-                                         row.names = "Max"))
-    }
-    if (!is.na(p["K1"])) {
-      priors <- rbind(priors, data.frame(Density="dunif", 
-                                         Prior1=-10, 
-                                         Prior2=10, 
-                                         SDProp=0.2, 
-                                         Min=-10, 
-                                         Max=10, 
-                                         Init=unname(p["K1"]), stringsAsFactors = FALSE, 
-                                         row.names = "K1"))
-    }
-    if (!is.na(p["K2"])) {
-      priors <- rbind(priors, data.frame(Density="dunif", 
-                                         Prior1=-10, 
-                                         Prior2=10, 
-                                         SDProp=0.2, 
-                                         Min=-10, 
-                                         Max=10, 
-                                         Init=unname(p["K2"]), stringsAsFactors = FALSE, 
-                                         row.names = "K2"))
-    }
-    
     mcmc <- HelpersMG::MHalgoGen(
       likelihood = BP_LnLCompactness,
       bone=bone, 
@@ -193,7 +196,7 @@ BP_FitMLCompactness <- function(bone, fitted.parameters=c(P=0.5, S=0.05, Min=0.0
   
   for (iter in 1:replicates.CI) {
     p <- unlist(rd$random[iter, , drop=TRUE])
-
+    
     # 21/02/2020
     p["S"] <- 1/(4*p["S"])
     

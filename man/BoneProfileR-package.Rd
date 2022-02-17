@@ -23,8 +23,8 @@ name, timestamp, bg, fg, threshold, contour, centers, peripherie, compactness,
 array.compactness, cut.distance.center, cut.angle, used.centers, compactness.synthesis, 
 partial, rotation.angle, global.compactness, optim, optimRadial\cr
 Several analyses can be stored within a single file.\cr
-\if{html}{\figure{E.png}{options: alt="BoneProfileR logo", width="200pt", align="right"}}
-\if{latex}{\figure{E.png}{options: width="200pt"}}
+\if{html}{\figure{E.png}{options: alt="BoneProfileR logo", align="right"}}
+\if{latex}{\figure{E.png}}
 }
 \details{
 A model for bone compactness.
@@ -32,8 +32,8 @@ A model for bone compactness.
 \tabular{ll}{
  Package: \tab BoneProfileR\cr
  Type: \tab Package\cr
- Version: \tab 2.0 build 693\cr
- Date: \tab 2021-10-06\cr
+ Version: \tab 2.0-2 build 717\cr
+ Date: \tab 2022-02-17\cr
  License: \tab GPL (>= 2)\cr
  LazyLoad: \tab yes\cr
  }
@@ -57,9 +57,9 @@ path_Hedgehog <- system.file("extdata", "Erinaceus_europaeus_fem_2-1_small.png",
  plot(bone, type="original")
  plot(bone, type="mineralized")
  plot(bone, type="observations")
- plot(bone, type="observations+model", analysis=1)
  bone <- BP_FitMLCompactness(bone, analysis="logistic")
  plot(bone, type="model", analysis=1)
+ plot(bone, type="observations+model", analysis=1)
  fittedpar <- BP_GetFittedParameters(bone, analysis="logistic")
  bone <- BP_DuplicateAnalysis(bone, from="logistic", to="flexit")
  bone <- BP_FitMLCompactness(bone, 

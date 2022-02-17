@@ -84,10 +84,12 @@ plot.BoneProfileR <- function(x, message=NULL, type="original", angle=NULL,
                               mar=NULL, 
                               CI="ML", radial.variable= "S", show.legend=TRUE, ...) {
   
-  # message=NULL; type="original"; angle=NULL; parameter.mcmc = "S"; options.mcmc = list(); restorePar=TRUE; show.centers=TRUE; show.colors=TRUE; show.grid=TRUE; analysis=1; CI="ML"; radial.variable= "S"; show.legend=TRUE
+  # message=NULL; type="original"; angle=NULL; parameter.mcmc = "S"; options.mcmc = list(); restorePar=TRUE; mar=NULL; show.centers=TRUE; show.colors=TRUE; show.grid=TRUE; analysis=1; CI="ML"; radial.variable= "S"; show.legend=TRUE
   
   # type <- "observations"
   # type <- "radial"
+  # type <- "model"
+  bone <- x
   
   oldpar <- par(no.readonly = TRUE)    # code line i
   if (restorePar) on.exit(par(oldpar))            # code line i + 1
@@ -247,7 +249,7 @@ plot.BoneProfileR <- function(x, message=NULL, type="original", angle=NULL,
       
       if (show.legend) {
         if ((CI == "MCMC") & (is.null(angle)) & (!is.null(RM_get(x=bone, RMname=analysis, valuename = "optim")))) {
-          legend("bottomright", legend=c("Model", "95% Confidence interval MCMC"), 
+          legend("bottomright", legend=c("Model", "95% Credibility interval MCMC"), 
                  lty=c(3, 1), lwd=c(2, 6), col=c("black", "lightgrey"), cex=0.8)
         } else {
           if ((CI == "ML") & (is.null(angle)) & (!is.null(RM_get(x=bone, RMname=analysis, valuename = "optim")$quantiles))) {
@@ -315,7 +317,7 @@ plot.BoneProfileR <- function(x, message=NULL, type="original", angle=NULL,
       
       if (show.legend) {
         if ((CI == "MCMC") & (is.null(angle)) & (!is.null(RM_get(x=bone, RMname=analysis, valuename = "mcmc")))) {
-          legend("bottomright", legend=c("Number of pixels", "Observed compactness", "Model", "95% Confidence interval MCMC"), 
+          legend("bottomright", legend=c("Number of pixels", "Observed compactness", "Model", "95% Credibility interval MCMC"), 
                  lty=c(1, 1, 3, 1), lwd=c(1, 2, 2, 6), col=c("blue", "black", "black", "lightgrey"), cex=0.8)
         } else {
           if ((CI == "ML") & (is.null(angle)) & (!is.null(RM_get(x=bone, RMname=analysis, valuename = "optim")$quantiles))) {
@@ -331,7 +333,7 @@ plot.BoneProfileR <- function(x, message=NULL, type="original", angle=NULL,
   }
   
   if (type %in% c("original", "mineralized", "unmineralized", "section")) {
-    layout(1)
+    # layout(1)
     out <- NULL
     bone_x <- NULL
     
@@ -360,7 +362,12 @@ plot.BoneProfileR <- function(x, message=NULL, type="original", angle=NULL,
       
       
       par(xaxs="i", yaxs="i")
-      par(mar=c(4, 0, 0, 0))
+      
+      if (is.null(mar)) {
+        par(mar=c(4, 0, 0, 0))
+      } else {
+        par(mar=mar)
+      }
       
       getFromNamespace("plot.cimg", ns="imager")(bone, bty="n", axes=FALSE, xlab="", ylab="", 
                                                  asp = 1)
@@ -506,9 +513,9 @@ plot.BoneProfileR <- function(x, message=NULL, type="original", angle=NULL,
             text(x=xl["end"]-xl["range"]*0.40, 
                  y=yl["begin"]-yl["range"]*0.07, 
                  labels = "+ Center of the section", cex=0.8, col="red", pos=4)
-            text(x=xl["end"]-xl["range"]*0.40, 
+            points(x=xl["end"]-xl["range"]*0.375, 
                  y=yl["begin"]-yl["range"]*0.1, 
-                 labels = "\u2022", cex=2, col="blue", pos=4)
+                 pch=19, col="blue")
             text(x=xl["end"]-xl["range"]*0.38, 
                  y=yl["begin"]-yl["range"]*0.1, 
                  labels = "Ontogenic center", cex=0.8, col="blue", pos=4)

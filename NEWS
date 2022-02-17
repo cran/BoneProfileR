@@ -1,8 +1,10 @@
 THIS IS THE CHANGELOG OF THE "BoneProfileR" PACKAGE
 
-            CHANGES IN VERSION 2.0 (2021-10-06)
+            CHANGES IN VERSION 2.0-2 (2022-02-17)
             
 * First CRAN version - 2.0 (2021-10-05)
+* Can fit bone section with very large K1 or K2 values in flexit model - 2.0-1 (2021-10-12)
+* Minor change for figures in documentation - 2.0-2 (2022-02-17)
 
             CHANGES IN VERSIONS 1.x (2020-04-01 to 2021-01-06)
             

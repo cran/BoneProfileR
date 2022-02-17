@@ -1,11 +1,11 @@
 Package: BoneProfileR
 Type: Package
 Title: Tools to Study Bone Compactness
-Version: 2.0
-Date: 2021-10-06
+Version: 2.0-2
+Date: 2022-02-17
 Author: Marc Girondot <marc.girondot@gmail.com>
 Maintainer: Marc Girondot <marc.girondot@gmail.com>
-Depends: imager, HelpersMG (>= 4.7), knitr, rmarkdown, R (>= 4.1),
+Depends: imager, HelpersMG (>= 4.7-3), knitr, rmarkdown, R (>= 4.1),
         shiny
 Suggests: tiff, ijtiff, openxlsx, parallel
 Description: Bone Profiler is a scientific method and a software used to model 
@@ -17,6 +17,6 @@ LazyLoad: yes
 Encoding: UTF-8
 RoxygenNote: 7.1.2
 NeedsCompilation: no
-Packaged: 2021-10-06 17:16:22 UTC; marcgirondot
+Packaged: 2022-02-17 13:01:19 UTC; marcgirondot
 Repository: CRAN
-Date/Publication: 2021-10-07 10:50:02 UTC
+Date/Publication: 2022-02-17 13:22:03 UTC

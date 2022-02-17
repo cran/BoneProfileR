@@ -7,6 +7,7 @@
 BP_FitMLRadialCompactness(
   bone,
   fitted.parameters = NULL,
+  priors = NULL,
   fixed.parameters = NULL,
   analysis = 1,
   silent = FALSE,
@@ -17,6 +18,8 @@ BP_FitMLRadialCompactness(
 \item{bone}{The bone image to be used}
 
 \item{fitted.parameters}{Parameters of the model to be fitted}
+
+\item{priors}{If twosteps is TRUE, ell what prior should be used.}
 
 \item{fixed.parameters}{Fixed parameters of the model}
 

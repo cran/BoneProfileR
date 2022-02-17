@@ -7,6 +7,7 @@
 BP_FitMLCompactness(
   bone,
   fitted.parameters = c(P = 0.5, S = 0.05, Min = 0.001, Max = 0.999),
+  priors = NULL,
   fixed.parameters = c(K1 = 1, K2 = 1),
   twosteps = TRUE,
   replicates.CI = 10000,
@@ -18,6 +19,8 @@ BP_FitMLCompactness(
 \item{bone}{The bone image to be used}
 
 \item{fitted.parameters}{Parameters of the model to be fitted}
+
+\item{priors}{Priors used for intermediate estimations}
 
 \item{fixed.parameters}{Fixed parameters of the model}
 
