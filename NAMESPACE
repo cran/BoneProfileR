@@ -26,7 +26,7 @@ import(rmarkdown)
 import(knitr)
 import(shiny)
 importFrom("grDevices", "rgb", "col2rgb")
-importFrom("graphics", "polygon", "text", "par", "plot", "locator", 
+importFrom("graphics", "polygon", "text", "par", "plot", "locator", "hist", 
              "points", "axis", "lines", "mtext", "segments", "legend", "layout")
 importFrom("stats", "median", "optim", "dbinom", "quantile", "sd", "na.omit", "aggregate")
 importFrom("utils", "modifyList", "getFromNamespace", "installed.packages", 

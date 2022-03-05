@@ -9,7 +9,9 @@
 #' @examples
 #' \dontrun{
 #' # Not run:
-#'  bone <- BP_OpenImage()
+#'  path_Hedgehog <- system.file("extdata", "Erinaceus_europaeus_fem_2-1_small.tif", 
+#'                              package = "BoneProfileR")
+#'  bone <- BP_OpenImage(file=path_Hedgehog)
 #'  bone <- BP_ChooseBackground(bone=bone)
 #'  bone <- BP_ChooseForeground(bone=bone)
 #'  plot(bone)
@@ -22,7 +24,7 @@ BP_ChooseBackground <- function(bone, analysis=1) {
   on.exit(par(oldpar))            # code line i + 1
   
   plot(bone, 
-       message="Please choose the background color", retorePar=FALSE)
+       message="Please choose the background color", restorePar=FALSE)
   pos <- getFromNamespace(".BP_DetectClick", ns="BoneProfileR")(bone)
   bg <- bone[pos["x"], pos["y"], 1, 1:3]
   bg <- rgb(red=bg[1], green=bg[2], blue=bg[3])

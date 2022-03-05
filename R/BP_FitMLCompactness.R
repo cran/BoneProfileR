@@ -29,7 +29,6 @@
 #'  bone <- BP_DetectForeground(bone=bone, analysis="logistic")
 #'  bone <- BP_DetectCenters(bone=bone, analysis="logistic")
 #'  bone <- BP_EstimateCompactness(bone, analysis="logistic")
-#'  plot(bone, type="ontogenic", show.grid=FALSE)
 #'  plot(bone, type="mineralized", show.grid=FALSE)
 #'  plot(bone, type="unmineralized", show.grid=FALSE)
 #'  plot(bone, type="section", show.grid=FALSE)

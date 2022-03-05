@@ -38,7 +38,7 @@ path_Hedgehog <- system.file("extdata", "Erinaceus_europaeus_fem_2-1_small.png",
  bone <- BP_DetectForeground(bone=bone)
  bone <- BP_ChooseCenter(bone=bone)
  bone <- BP_EstimateCompactness(bone, center="user", partial=TRUE)
- bone <- BP_FitMLCompactness(bone, analysis="logistic")
+ bone <- BP_FitMLCompactness(bone, analysis=1)
  plot(bone, type="observations+model")
 }
 }

@@ -34,7 +34,6 @@ path_Hedgehog <- system.file("extdata", "Erinaceus_europaeus_fem_2-1_small.png",
  bone <- BP_DetectBackground(bone=bone)
  bone <- BP_DetectForeground(bone=bone)
  bone <- BP_DetectCenters(bone=bone)
- plot(bone, type="ontogenic", show.grid=FALSE)
  plot(bone, type="mineralized", show.grid=FALSE)
  plot(bone, type="unmineralized", show.grid=FALSE)
  plot(bone, type="section", show.grid=FALSE)

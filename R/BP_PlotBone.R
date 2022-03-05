@@ -14,15 +14,18 @@
 #' @param show.legend Should a legend be shown? 
 #' @param analysis Name or number of analysis to be plotted
 #' @param radial.variable Name of the radial variable to plot
-#' @param CI Which confidence interval should be ploted: MCMC or ML
+#' @param CI Which confidence interval should be plotted: MCMC or ML
 #' @param restorePar If TRUE, restore the par parameter at the exit
-#' @param mar The margin for type = model or observations
+#' @param mar The margin for type being "model" or "observations"
+#' @param angle.3D The angle between x and y for 3Dcolors graph
 #' @param ... Not used
 #' @description Display a bone section.\cr
 #' type value can be:\cr
 #' Image plot: original, mineralized, unmineralized, section\cr
 #' Original is the original image, mineralized is the mineral interpretation of the section, 
 #' unmineralized is the unmineralized interpretation of the section, section is the interpretation of the section.\cr
+#' colors show the histograms of pixel information with foreground and background colors if they are defined.\cr
+#' 3Dcolors show the pixels colors in 3D\cr
 #' Global analysis: observations, model, observations+model\cr
 #' Radial analysis: radial\cr
 #' If angle is not null and a radial analysis exists, it will show the model for this angle.\cr
@@ -39,7 +42,9 @@
 #'  bone <- BP_OpenImage(file=path_Hedgehog)
 #'  bone <- BP_DetectBackground(bone=bone, analysis="logistic")
 #'  bone <- BP_DetectForeground(bone=bone, analysis="logistic")
+#'  plot(bone, type="colors")
 #'  bone <- BP_DetectCenters(bone=bone, analysis="logistic")
+#'  plot(bone, type="3Dcolors")
 #'  bone <- BP_EstimateCompactness(bone, analysis="logistic", rotation.angle = 1)
 #'  bone <- BP_FitMLCompactness(bone, analysis="logistic")
 #'  plot(bone)
@@ -81,7 +86,7 @@ plot.BoneProfileR <- function(x, message=NULL, type="original", angle=NULL,
                               parameter.mcmc = "S", 
                               options.mcmc = list(), 
                               restorePar = TRUE, 
-                              mar=NULL, 
+                              mar=NULL, angle.3D = 55, 
                               CI="ML", radial.variable= "S", show.legend=TRUE, ...) {
   
   # message=NULL; type="original"; angle=NULL; parameter.mcmc = "S"; options.mcmc = list(); restorePar=TRUE; mar=NULL; show.centers=TRUE; show.colors=TRUE; show.grid=TRUE; analysis=1; CI="ML"; radial.variable= "S"; show.legend=TRUE
@@ -89,6 +94,7 @@ plot.BoneProfileR <- function(x, message=NULL, type="original", angle=NULL,
   # type <- "observations"
   # type <- "radial"
   # type <- "model"
+  # type <- "colors"
   bone <- x
   
   oldpar <- par(no.readonly = TRUE)    # code line i
@@ -97,11 +103,93 @@ plot.BoneProfileR <- function(x, message=NULL, type="original", angle=NULL,
   type <- match.arg(type, choices = c("original", "mineralized", 
                                       "unmineralized", "section", "radial", 
                                       "observations", "model", "observations+model", 
-                                      "mcmc"))
+                                      "mcmc", "colors", "3Dcolors"))
   
   out <- BP_ListAnalyses(bone=x)
-  if ((is.null(out[analysis][[1]])) & (type != "original")) {
+  if (is.null(out[analysis][[1]]) & (type != "original") & (type != "colors")) {
     stop(paste0("The analysis ", analysis, " does not exist"))
+  }
+  
+  if (type == "3Dcolors") {
+
+    threshold <- RM_get(x=bone, RMname=analysis, valuename = "threshold")
+    
+    DF_background <- data.frame(Red=as.numeric(bone[, , 1, 1])[as.vector(!threshold[])], 
+                                Green=as.numeric(bone[, , 1, 2])[as.vector(!threshold[])], 
+                                Blue=as.numeric(bone[, , 1, 3])[as.vector(!threshold[])])
+    
+    DF_foreground <- data.frame(Red=as.numeric(bone[, , 1, 1])[as.vector(threshold[])], 
+                                Green=as.numeric(bone[, , 1, 2])[as.vector(threshold[])], 
+                                Blue=as.numeric(bone[, , 1, 3])[as.vector(threshold[])])
+    DF <- rbind(DF_background, DF_foreground)
+    
+    # install.packages("scatterplot3d") # Install
+    # library("scatterplot3d") # load
+    getFromNamespace(x="scatterplot3d", ns="scatterplot3d")(DF[,1:3], xlim = c(0, 1), ylim = c(0, 1),
+                  zlim = c(0, 1), xlab = "Red", ylab = "Green", zlab = "Blue", 
+                  pch=c(rep(19, nrow(DF_background)), rep(21, nrow(DF_foreground))), 
+                  color=rgb(red = DF[,1], green = DF[,2], blue = DF[,3], alpha = 1), 
+                  angle = angle.3D, 
+                  bg="black"
+                  )
+    if (show.legend) {
+    legend("topleft", legend=c("Background", "Foreground"), 
+           col=c(rgb(red = mean(DF_background[,1]), green = mean(DF_background[,2]), blue = mean(DF_background[,3]), alpha = 1), 
+                 "black"), 
+           pch=c(19, 21), pt.bg=c(rgb(red = mean(DF_background[,1]), green = mean(DF_background[,2]), blue = mean(DF_background[,3]), alpha = 1), 
+                                  rgb(red = mean(DF_foreground[,1]), green = mean(DF_foreground[,2]), blue = mean(DF_foreground[,3]), alpha = 1)))
+    }
+  }
+  
+  if (type == "colors") {
+    
+    DF <- data.frame(Red=as.numeric(bone[, , 1, 1]), 
+                     Green=as.numeric(bone[, , 1, 2]), 
+                     Blue=as.numeric(bone[, , 1, 3]))
+    if (!is.null(analysis)) {
+      bg <- col2rgb(RM_get(x=bone, RMname=analysis, valuename = "bg"))/255
+      fg <- col2rgb(RM_get(x=bone, RMname=analysis, valuename = "fg"))/255
+    } else {
+      bg <- NULL
+      fg <- NULL
+    }
+    
+    layout(1:3)
+    ppar <- par(mar=c(2, 4, 2, 1))
+    par(xpd=TRUE)
+    hist(DF$Red, main="", xlab="", col="red")
+    ymax <- ScalePreviousPlot()$ylim["end"]
+    if (!is.null(bg)) {
+      segments(x0=bg["red", 1], x1=bg["red", 1], y0=0, y1=ymax)
+      text(x=bg["red", 1], y=ymax*1.1, labels = "Foreground")
+    }
+    if (!is.null(fg)) {
+      segments(x0=fg["red", 1], x1=fg["red", 1], y0=0, y1=ymax)
+      text(x=fg["red", 1], y=ymax*1.1, labels = "Background")
+    }
+    hist(DF$Green, main="", xlab="", col="green")
+    ymax <- ScalePreviousPlot()$ylim["end"]
+    if (!is.null(bg)) {
+      segments(x0=bg["green", 1], x1=bg["green", 1], y0=0, y1=ymax)
+      text(x=bg["green", 1], y=ymax*1.1, labels = "Foreground")
+    }
+    if (!is.null(fg)) {
+      segments(x0=fg["green", 1], x1=fg["green", 1], y0=0, y1=ymax)
+      text(x=fg["green", 1], y=ymax*1.1, labels = "Background")
+    }
+    
+    hist(DF$Blue, main="", xlab="", col="blue")
+    ymax <- ScalePreviousPlot()$ylim["end"]
+    if (!is.null(bg)) {
+      segments(x0=bg["blue", 1], x1=bg["blue", 1], y0=0, y1=ymax)
+      text(x=bg["blue", 1], y=ymax*1.1, labels = "Foreground")
+    }
+    if (!is.null(fg)) {
+      segments(x0=fg["blue", 1], x1=fg["blue", 1], y0=0, y1=ymax)
+      text(x=fg["blue", 1], y=ymax*1.1, labels = "Background")
+    }
+    layout(1)
+    par(mar=ppar$mar)
   }
   
   if (type == "mcmc") {
@@ -343,7 +431,7 @@ plot.BoneProfileR <- function(x, message=NULL, type="original", angle=NULL,
     bone <- NULL
     
     if (type != "original") {
-    
+      
       if ((type == "mineralized") & !is.null(threshold)) bone_x <- threshold
       if ((type == "unmineralized") & !is.null(threshold) & !is.null(contour)) bone_x <- contour & !threshold
       if ((type == "section") & !is.null(contour)) bone_x <- contour
@@ -514,8 +602,8 @@ plot.BoneProfileR <- function(x, message=NULL, type="original", angle=NULL,
                  y=yl["begin"]-yl["range"]*0.07, 
                  labels = "+ Center of the section", cex=0.8, col="red", pos=4)
             points(x=xl["end"]-xl["range"]*0.375, 
-                 y=yl["begin"]-yl["range"]*0.1, 
-                 pch=19, col="blue")
+                   y=yl["begin"]-yl["range"]*0.1, 
+                   pch=19, col="blue")
             text(x=xl["end"]-xl["range"]*0.38, 
                  y=yl["begin"]-yl["range"]*0.1, 
                  labels = "Ontogenic center", cex=0.8, col="blue", pos=4)

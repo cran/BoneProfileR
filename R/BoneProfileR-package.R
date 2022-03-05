@@ -3,8 +3,8 @@
 #' \tabular{ll}{
 #'  Package: \tab BoneProfileR\cr
 #'  Type: \tab Package\cr
-#'  Version: \tab 2.0-2 build 717\cr
-#'  Date: \tab 2022-02-17\cr
+#'  Version: \tab 2.1 build 736\cr
+#'  Date: \tab 2022-03-04\cr
 #'  License: \tab GPL (>= 2)\cr
 #'  LazyLoad: \tab yes\cr
 #'  }
@@ -15,10 +15,8 @@
 #' @description A Model for Bone Compactness.\cr
 #' The lastest version of this package can always been installed using:\cr
 #' install.packages(c("imager", "tiff", "ijtiff", "HelpersMG", "knitr", "rmarkdown", "openxlsx", "shiny"))\cr
-#' install.packages("http://www.ese.u-psud.fr/epc/conservation/CRAN/HelpersMG.tar.gz", 
-#'                   repos=NULL, type="source")\cr
-#' install.packages("http://www.ese.u-psud.fr/epc/conservation/CRAN/BoneProfileR.tar.gz", 
-#'                   repos=NULL, type="source")\cr
+#' install.packages("https://hebergement.universite-paris-saclay.fr/marcgirondot/CRAN/HelpersMG.tar.gz", repos=NULL, type="source")\cr
+#' install.packages("https://hebergement.universite-paris-saclay.fr/marcgirondot/CRAN/BoneProfileR.tar.gz", repos=NULL, type="source")\cr
 #' BoneProfileR uses a new results management software that is developed as part of the HelpersMG 
 #' package. Using this results management system (RM), all the results are stored as part of the 
 #' analyzed image.\cr
@@ -37,6 +35,10 @@
 #' Vertebrate Paleontology 23: 458-461
 #' @references Laurin M, Girondot M, Loth M-M (2004) The evolution of long bone microstructure 
 #' and lifestyle in lissamphibians. Paleobiology 30: 589-613 
+#' @references Gônet, Jordan, Jérémie Bardin, Marc Girondot, John R. Hutchinson, and Michel 
+#' Laurin. 2022. The Reptilian Locomotor and Postural Diversity Seen through the Prism of 
+#' Femoral Microanatomy: Paleobiological Implications for Some Permian and Mesozoic Reptiles. 
+#' Submitted
 #' @examples
 #' \dontrun{
 #' # Not run:

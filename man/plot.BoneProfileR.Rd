@@ -17,6 +17,7 @@
   options.mcmc = list(),
   restorePar = TRUE,
   mar = NULL,
+  angle.3D = 55,
   CI = "ML",
   radial.variable = "S",
   show.legend = TRUE,
@@ -46,9 +47,11 @@
 
 \item{restorePar}{If TRUE, restore the par parameter at the exit}
 
-\item{mar}{The margin for type = model or observations}
+\item{mar}{The margin for type being "model" or "observations"}
 
-\item{CI}{Which confidence interval should be ploted: MCMC or ML}
+\item{angle.3D}{The angle between x and y for 3Dcolors graph}
+
+\item{CI}{Which confidence interval should be plotted: MCMC or ML}
 
 \item{radial.variable}{Name of the radial variable to plot}
 
@@ -65,6 +68,8 @@ type value can be:\cr
 Image plot: original, mineralized, unmineralized, section\cr
 Original is the original image, mineralized is the mineral interpretation of the section, 
 unmineralized is the unmineralized interpretation of the section, section is the interpretation of the section.\cr
+colors show the histograms of pixel information with foreground and background colors if they are defined.\cr
+3Dcolors show the pixels colors in 3D\cr
 Global analysis: observations, model, observations+model\cr
 Radial analysis: radial\cr
 If angle is not null and a radial analysis exists, it will show the model for this angle.\cr
@@ -84,7 +89,9 @@ library(BoneProfileR)
  bone <- BP_OpenImage(file=path_Hedgehog)
  bone <- BP_DetectBackground(bone=bone, analysis="logistic")
  bone <- BP_DetectForeground(bone=bone, analysis="logistic")
+ plot(bone, type="colors")
  bone <- BP_DetectCenters(bone=bone, analysis="logistic")
+ plot(bone, type="3Dcolors")
  bone <- BP_EstimateCompactness(bone, analysis="logistic", rotation.angle = 1)
  bone <- BP_FitMLCompactness(bone, analysis="logistic")
  plot(bone)

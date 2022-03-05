@@ -23,7 +23,9 @@ BP_ChooseBackground lets the use to choose the background color of an image
 \examples{
 \dontrun{
 # Not run:
- bone <- BP_OpenImage()
+ path_Hedgehog <- system.file("extdata", "Erinaceus_europaeus_fem_2-1_small.tif", 
+                             package = "BoneProfileR")
+ bone <- BP_OpenImage(file=path_Hedgehog)
  bone <- BP_ChooseBackground(bone=bone)
  bone <- BP_ChooseForeground(bone=bone)
  plot(bone)
