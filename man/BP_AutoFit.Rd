@@ -8,7 +8,7 @@ BP_AutoFit(
   file = file.choose(),
   xlsx = TRUE,
   rotation.angle = 0,
-  center = "ontogenic"
+  center = "ontogenetic"
 )
 }
 \arguments{

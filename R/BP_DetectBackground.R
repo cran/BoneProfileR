@@ -38,7 +38,7 @@ BP_DetectBackground <- function(bone, analysis=1, show.plot=TRUE) {
   bone <- RM_delete(x=bone, RMname = analysis, valuename="used.centers")
   bone <- RM_delete(x=bone, RMname = analysis, valuename="optimRadial")
   
-  if (show.plot) plot(bone)
+  if (show.plot) plot(bone, message="Do not forget to check thresholding")
   return(bone)
 }
 

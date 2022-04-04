@@ -3,7 +3,7 @@
 #' @author Marc Girondot \email{marc.girondot@@gmail.com}
 #' @return The orignial bone object with a new attribute for compactness
 #' @param bone The bone image to be used
-#' @param center Which center to be used: user, mineralized, unmineralized, section, ontogenic
+#' @param center Which center to be used: user, mineralized, unmineralized, section, ontogenetic
 #' @param cut.angle Number of angles
 #' @param cut.distance Number of distances
 #' @param partial Is the section partial?
@@ -40,27 +40,27 @@
 #' @export
 
 
-BP_EstimateCompactness <- function(bone, center="ontogenic", 
+BP_EstimateCompactness <- function(bone, center="ontogenetic", 
                                    partial=FALSE, 
                                    cut.angle=60, cut.distance=100, 
                                    rotation.angle=0, 
                                    analysis=1, show.plot=TRUE) {
   
-  # center="ontogenic"; partial=FALSE; cut.angle=60; cut.distance=100; analysis=1; rotation.angle=0; show.plot=TRUE
+  # center="ontogenetic"; partial=FALSE; cut.angle=60; cut.distance=100; analysis=1; rotation.angle=0; show.plot=TRUE
   # center="user"; partial=TRUE; cut.angle=60; cut.distance=100; analysis=1; rotation.angle=0; show.plot=TRUE
   
   oldpar <- par(no.readonly = TRUE)    # code line i
   on.exit(par(oldpar))            # code line i + 1
   
   center <- match.arg(center, choices = c("user", "mineralized", "ontogenic", 
-                                          "unmineralized", "section"))
-  
+                                          "unmineralized", "section", "ontogenetic"))
+  if (center == "ontogenic") center <- "ontogenetic"
   if ((center!="user") & partial) {
     stop("When partial analysis is done, only user center must be used.")
   }
   
   if (is.null(RM_get(x=bone, RMname=analysis, valuename = "centers"))) {
-    stop("You must first setup centers using BP_DetectCenters() or BP_ChooseCenters()")
+    stop("You must first setup centers using BP_DetectCenters() or BP_ChooseCenter()")
   }
   
   
@@ -90,7 +90,7 @@ BP_EstimateCompactness <- function(bone, center="ontogenic",
     center.y <- RM_get(x=bone, RMname=analysis, valuename = "centers")["GC_bone.y"]
   }
   
-  if (center == "ontogenic") {
+  if (center == "ontogenetic") {
     center.x <- RM_get(x=bone, RMname=analysis, valuename = "centers")["GC_ontogenic.x"]
     center.y <- RM_get(x=bone, RMname=analysis, valuename = "centers")["GC_ontogenic.y"]
   }

@@ -44,6 +44,6 @@ BP_ChooseForeground <- function(bone, analysis=1) {
   
   
   plot(bone)
-  return(bone)
+  return(bone, message="Do not forget to check thresholding")
 }
 

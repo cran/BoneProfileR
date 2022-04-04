@@ -3,8 +3,8 @@
 #' \tabular{ll}{
 #'  Package: \tab BoneProfileR\cr
 #'  Type: \tab Package\cr
-#'  Version: \tab 2.1 build 736\cr
-#'  Date: \tab 2022-03-04\cr
+#'  Version: \tab 2.2 build 747\cr
+#'  Date: \tab 2022-04-04\cr
 #'  License: \tab GPL (>= 2)\cr
 #'  LazyLoad: \tab yes\cr
 #'  }
@@ -39,6 +39,9 @@
 #' Laurin. 2022. The Reptilian Locomotor and Postural Diversity Seen through the Prism of 
 #' Femoral Microanatomy: Paleobiological Implications for Some Permian and Mesozoic Reptiles. 
 #' Submitted
+#' @references Gônet, Jordan, Michel Laurin, and Marc Girondot.  2022.  “Bone 
+#' Profiler: The Next Step to Quantify, Model and Statistically Compare Bone 
+#' Section Compactness Profiles.”  Paleontologica Electronica In press.
 #' @examples
 #' \dontrun{
 #' # Not run:
@@ -54,7 +57,9 @@
 #'  plot(bone, type="mineralized")
 #'  plot(bone, type="unmineralized")
 #'  plot(bone, type="section")
-#'  bone <- BP_EstimateCompactness(bone, analysis="logistic", center="ontogenic")
+#'  plot(bone, type="colors")
+#'  plot(bone, type="3Dcolors")
+#'  bone <- BP_EstimateCompactness(bone, analysis="logistic", center="ontogenetic")
 #'  plot(bone, type="original")
 #'  plot(bone, type="mineralized")
 #'  plot(bone, type="observations")

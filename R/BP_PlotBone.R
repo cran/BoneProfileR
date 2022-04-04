@@ -606,7 +606,7 @@ plot.BoneProfileR <- function(x, message=NULL, type="original", angle=NULL,
                    pch=19, col="blue")
             text(x=xl["end"]-xl["range"]*0.38, 
                  y=yl["begin"]-yl["range"]*0.1, 
-                 labels = "Ontogenic center", cex=0.8, col="blue", pos=4)
+                 labels = "Ontogenetic center", cex=0.8, col="blue", pos=4)
           } else {
             points(centers["GC_user.x"], centers["GC_user.y"], pch=1, col="red")
             text(x=xl["end"]-xl["range"]*0.40, 

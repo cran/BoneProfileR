@@ -97,6 +97,6 @@ BP_DetectCenters <- function(bone, analysis=1, show.plot=TRUE) {
                                                                          GC_ontogenic.x=GC_ontoCenter.x, 
                                                                          GC_ontogenic.y=GC_ontoCenter.y))
   
-  if (show.plot) plot(bone)
+  if (show.plot) plot(bone, message="Do not forget to check thresholding")
   return(bone)
 }

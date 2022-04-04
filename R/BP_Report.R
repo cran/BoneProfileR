@@ -157,7 +157,7 @@ BP_Report <- function(bone=stop("A bone section must be provided"),
     
     
     texte.pdf <- c(texte.pdf, "", 
-                   "### This software is provided by [Marc Girondot](https://max2.ese.u-psud.fr/epc/conservation/Marc.html), Ecologie, Syst\u00E9matique, Evolution, CNRS, Universit\u00E9 Paris Saclay, AgroParisTech.")
+                   "### This software is provided by [Marc Girondot](https://hebergement.universite-paris-saclay.fr/marcgirondot/), Ecologie, Syst\u00E9matique, Evolution, CNRS, Universit\u00E9 Paris Saclay, AgroParisTech.")
     
     texte.pdf <- iconv(texte.pdf, from = "", to="UTF-8")
     tmp <- tempdir()
@@ -234,7 +234,7 @@ BP_Report <- function(bone=stop("A bone section must be provided"),
     }
     
     texte.docx <- c(texte.docx, "", 
-                    "### This software is provided by [Marc Girondot](https://max2.ese.u-psud.fr/epc/conservation/Marc.html), Ecologie, Syst\u00E9matique, Evolution, CNRS, Universit\u00E9 Paris Saclay, AgroParisTech.")
+                    "### This software is provided by [Marc Girondot](https://hebergement.universite-paris-saclay.fr/marcgirondot/), Ecologie, Syst\u00E9matique, Evolution, CNRS, Universit\u00E9 Paris Saclay, AgroParisTech.")
     
     texte.docx <- iconv(texte.docx, from = "", to="UTF-8")
  

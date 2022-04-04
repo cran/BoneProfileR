@@ -74,7 +74,7 @@ BP_ChooseCenter <- function(bone, analysis=1) {
   
   bone <- RM_add(x=bone, RMname = analysis, valuename="used.centers", value=c(center.x=unname(pos["x"]), center.y=unname(pos["y"])))
   
-  plot(bone)
+  plot(bone, message="Do not forget to check thresholding")
   return(bone)
 }
 

@@ -22,7 +22,7 @@
 
 
 BP_AutoFit <- function(file=file.choose(), xlsx=TRUE, 
-                       rotation.angle=0, center="ontogenic") {
+                       rotation.angle=0, center="ontogenetic") {
   
   pdf=FALSE
   docx=FALSE

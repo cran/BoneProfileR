@@ -4,12 +4,14 @@
 \alias{summary.BoneProfileR}
 \title{Plot a bone section}
 \usage{
-\method{summary}{BoneProfileR}(object, max.level = FALSE, ...)
+\method{summary}{BoneProfileR}(object, max.level = FALSE, analysis = 1, ...)
 }
 \arguments{
 \item{object}{The bone image}
 
 \item{max.level}{If TRUE, will return all list element of the objects}
+
+\item{analysis}{The analysis to report the global compacteness}
 
 \item{...}{Not used}
 }

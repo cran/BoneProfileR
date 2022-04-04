@@ -1,8 +1,13 @@
 THIS IS THE CHANGELOG OF THE "BoneProfileR" PACKAGE
 
-            CHANGES IN VERSION 2.1 (2022-03-04)
+            CHANGES IN VERSION 2.2 (2022-04-04)
+            
+* New CRAN version - 2.2 (2022-04-04)
+
+            CHANGES IN VERSION 2.1-1 (2022-04-02)
             
 * New CRAN version - 2.1 (2022-03-04)
+* Check update at startup 2.1-2 (2022-04-02)
 
             CHANGES IN VERSION 2.0-7 (2022-03-04)
             

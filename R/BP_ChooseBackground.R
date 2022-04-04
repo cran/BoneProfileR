@@ -44,7 +44,7 @@ BP_ChooseBackground <- function(bone, analysis=1) {
   bone <- RM_delete(x=bone, RMname = analysis, valuename="used.centers")
   bone <- RM_delete(x=bone, RMname = analysis, valuename="optimRadial")
   
-  plot(bone)
+  plot(bone, message="Do not forget to check thresholding")
   return(bone)
 }
 

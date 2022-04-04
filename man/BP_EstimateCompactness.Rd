@@ -6,7 +6,7 @@
 \usage{
 BP_EstimateCompactness(
   bone,
-  center = "ontogenic",
+  center = "ontogenetic",
   partial = FALSE,
   cut.angle = 60,
   cut.distance = 100,
@@ -18,7 +18,7 @@ BP_EstimateCompactness(
 \arguments{
 \item{bone}{The bone image to be used}
 
-\item{center}{Which center to be used: user, mineralized, unmineralized, section, ontogenic}
+\item{center}{Which center to be used: user, mineralized, unmineralized, section, ontogenetic}
 
 \item{partial}{Is the section partial?}
 
