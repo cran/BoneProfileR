@@ -4,7 +4,7 @@
 
 library(shiny)
 package.BoneProfileR <- require('BoneProfileR')
-version <- "2.2 build 747"
+version <- "2.3 build 762"
 
 # 
 # mycss <- "
@@ -24,6 +24,24 @@ version <- "2.2 build 747"
 # }
 # "
 
+splitLayout <- function (..., cellWidths = NULL, cellArgs = list()) 
+{
+  children <- list2(...)
+  childIdx <- !nzchar(names(children) %||% character(length(children)))
+  attribs <- children[!childIdx]
+  children <- children[childIdx]
+  count <- length(children)
+  if (length(cellWidths) == 0 || any(is.na(cellWidths))) {
+    cellWidths <- sprintf("%.3f%%", 100/count)
+  }
+  cellWidths <- rep(cellWidths, length.out = count)
+  cellWidths <- sapply(cellWidths, validateCssUnit)
+  do.call(tags$div, c(list(class = "shiny-split-layout"), attribs, 
+                      mapply(children, cellWidths, FUN = function(x, w) {
+                        do.call(tags$div, c(list(style = sprintf("width: %s;", 
+                                                                 w)), cellArgs, list(x)))
+                      }, SIMPLIFY = FALSE)))
+}
 
 # Define UI for application that draws a histogram
 fluidPage(

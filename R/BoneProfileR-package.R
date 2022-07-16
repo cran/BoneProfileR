@@ -3,8 +3,8 @@
 #' \tabular{ll}{
 #'  Package: \tab BoneProfileR\cr
 #'  Type: \tab Package\cr
-#'  Version: \tab 2.2 build 747\cr
-#'  Date: \tab 2022-04-04\cr
+#'  Version: \tab 2.3 build 762\cr
+#'  Date: \tab 2022-07-14\cr
 #'  License: \tab GPL (>= 2)\cr
 #'  LazyLoad: \tab yes\cr
 #'  }
@@ -41,7 +41,7 @@
 #' Submitted
 #' @references Gônet, Jordan, Michel Laurin, and Marc Girondot.  2022.  “Bone 
 #' Profiler: The Next Step to Quantify, Model and Statistically Compare Bone 
-#' Section Compactness Profiles.”  Paleontologica Electronica In press.
+#' Section Compactness Profiles.”  Paleontologica Electronica. 25(1): a12
 #' @examples
 #' \dontrun{
 #' # Not run:

@@ -101,7 +101,7 @@ BP_OpenImage <- function(file=file.choose(), name=NULL, ijtiff=FALSE) {
     name <- basename(file)
   }
   
-  class(bone) <- c("BoneProfileR", class(bone))
+  bone <- addS3Class(bone, "BoneProfileR")
   attributes(bone) <- modifyList(attributes(bone), list(name=name))
   
   return(bone)

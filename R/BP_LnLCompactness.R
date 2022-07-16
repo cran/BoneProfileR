@@ -41,7 +41,7 @@ BP_LnLCompactness <- function(par, bone=NULL,
   p["S"] <- 1/(4*p["S"])
   
   
-  if (any(class(bone) == "BoneProfileR")){
+  if (inherits(bone, "BoneProfileR")){
     
     # p <- c(P=0.5, S=0.1, K1=1, K2=1, Min=0.05, Max=0.99)
     data <- RM_get(x=bone, RMname=analysis, valuename = "compactness.synthesis")
