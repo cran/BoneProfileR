@@ -3,8 +3,8 @@
 #' \tabular{ll}{
 #'  Package: \tab BoneProfileR\cr
 #'  Type: \tab Package\cr
-#'  Version: \tab 2.3 build 762\cr
-#'  Date: \tab 2022-07-14\cr
+#'  Version: \tab 2.4 build 766\cr
+#'  Date: \tab 2022-09-06\cr
 #'  License: \tab GPL (>= 2)\cr
 #'  LazyLoad: \tab yes\cr
 #'  }
@@ -28,7 +28,7 @@
 #' array.compactness, cut.distance.center, cut.angle, used.centers, compactness.synthesis, 
 #' partial, rotation.angle, global.compactness, optim, optimRadial\cr
 #' Several analyses can be stored within a single file.\cr
-#' \if{html}{\figure{E.png}{options: alt="BoneProfileR logo", align="right"}}
+#' \if{html}{\figure{E.png}{options: alt="BoneProfileR logo"}}
 #' \if{latex}{\figure{E.png}}
 #' @references Girondot M, Laurin M (2003) Bone Profiler: a tool to quantify, model, and 
 #' statistically compare bone-section compactness profiles. Journal of 

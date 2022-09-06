@@ -1,6 +1,6 @@
-9f077f284a5dbb7c97af24e8d5944629 *DESCRIPTION
+3c9a35ed2e580183a27ba94c21d7abc7 *DESCRIPTION
 dc68edd2c3e649da6d809e08b6d228b8 *NAMESPACE
-a27b19b558488ad6b59b4ed704a42f79 *NEWS
+d814745c087f25c8de80c8745b595aa4 *NEWS
 5fdd4e6eeb2c2c237268b1b91caad857 *R/BP.R
 10c9b9380ec995041d3d6a17f6560d4d *R/BP_AutoFit.R
 fdc694c758f2cd4b9afd13c93054802b *R/BP_ChooseBackground.R
@@ -27,7 +27,7 @@ ebff0b13c73b64ef08f05624cf95991d *R/BP_Report.R
 4d97d5439080bd0e72f11338e4d8b604 *R/BP_contour.R
 4db8409fa6f073da8321bde97a507804 *R/BP_distance.R
 2b679367c42dccab44ba71b8336c4c5b *R/BP_threshold.R
-4002a804ab9e68bd1a4ce916e51e65a3 *R/BoneProfileR-package.R
+750dca269a5bbd1db9614dcecd1d2cd9 *R/BoneProfileR-package.R
 84f3030209ba143557a7dd64442e1986 *R/onAttach.R
 a5b535269830bfaac7dcfff1f3cbce97 *data/Erinaceus_europaeus.rda
 2f1cc620d1ea8ef27f8cb2eea26e292e *inst/extdata/Dicynodon_tibia_11.11.1.T_b_b-1.png
@@ -35,7 +35,7 @@ a5b535269830bfaac7dcfff1f3cbce97 *data/Erinaceus_europaeus.rda
 5ae07385a88bfdb6525beb9f6e7af995 *inst/extdata/Erinaceus_europaeus_fem_2-1_small.tif
 7a5193baca8bc5b731c1b9b7c62b5046 *inst/extdata/template.docx
 cad0c78387ffd00d62c02c1bc8e300b7 *inst/shiny/server.R
-6ec4f46fa2aab5d1b9ef3246600f3121 *inst/shiny/ui.R
+72a05c0b0a426d4e2661fb1f07aee43e *inst/shiny/ui.R
 4f8a7fb3b684a6b6e6cecca21c3c6977 *inst/shiny/www/Rlogo.png
 03758f720ea72ca0332ed45dbfeb635d *inst/shiny/www/spinner.gif
 4558251a56e2d0d77422bb7671c520f2 *man/BP.Rd
@@ -55,9 +55,9 @@ b09f57cc14246c98b004aca68fa1b704 *man/BP_FitMLRadialCompactness.Rd
 d6843e2566af9e1cb0397e61a1f090ee *man/BP_ListAnalyses.Rd
 22cd271c971b213791f42aff37767529 *man/BP_LnLCompactness.Rd
 68742ae4ea9e489d3e09f1c0d8ef0742 *man/BP_OpenImage.Rd
-fb49c5b745a34f6c211e926de0ffe4fe *man/BP_Report.Rd
-a51e5e2491ce6105446d8c271c76923a *man/BoneProfileR-package.Rd
+a3f13916fa9258724bb45aab3c274658 *man/BP_Report.Rd
+af8139b9fb3f3f42957f314fe9633160 *man/BoneProfileR-package.Rd
 2ca9882f891378b8296f616d3e137d24 *man/Erinaceus_europaeus.Rd
-f9438e366a4d68f6d96d2f7f1e798f1c *man/figures/E.png
+a4a8bce8f600487314eb3fcf0e68318a *man/figures/E.png
 2875fe4843799b637d06cc019f5e89d5 *man/plot.BoneProfileR.Rd
 768a974678d254e1749425fb63efb5f8 *man/summary.BoneProfileR.Rd

@@ -1,8 +1,8 @@
 Package: BoneProfileR
 Type: Package
 Title: Tools to Study Bone Compactness
-Version: 2.3
-Date: 2022-07-14
+Version: 2.4
+Date: 2022-09-06
 Author: Marc Girondot <marc.girondot@gmail.com>
 Maintainer: Marc Girondot <marc.girondot@gmail.com>
 Depends: imager, HelpersMG (>= 5.3-1), knitr, rmarkdown, R (>= 4.1),
@@ -16,8 +16,8 @@ License: GPL-2
 LazyData: yes
 LazyLoad: yes
 Encoding: UTF-8
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 NeedsCompilation: no
-Packaged: 2022-07-14 05:42:58 UTC; marcgirondot
+Packaged: 2022-09-06 20:51:09 UTC; marcgirondot
 Repository: CRAN
-Date/Publication: 2022-07-16 23:50:12 UTC
+Date/Publication: 2022-09-06 21:10:06 UTC

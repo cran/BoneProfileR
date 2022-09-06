@@ -1,8 +1,13 @@
 THIS IS THE CHANGELOG OF THE "BoneProfileR" PACKAGE
 
-            CHANGES IN VERSION 2.3 (2022-07-14)
+            CHANGES IN VERSION 2.4 (2022-09-06)
+            
+* New CRAN version - 2.4 (2022-09-06)
+
+            CHANGES IN VERSION 2.3-3 (2022-08-22)
             
 * New CRAN version - 2.3 (2022-07-14)
+* align parameter for html5 is removed - 2.3-3 (2022-08-22)
 
             CHANGES IN VERSION 2.2-7 (2022-05-06)
             

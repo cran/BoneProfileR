@@ -6,8 +6,8 @@
 \usage{
 BP_Report(
   bone = stop("A bone section must be provided"),
-  control.plot = list(message = NULL, show.centers = TRUE, show.colors = TRUE,
-    show.grid = TRUE, CI = "ML", show.legend = TRUE),
+  control.plot = list(message = NULL, show.centers = TRUE, show.colors = TRUE, show.grid
+    = TRUE, CI = "ML", show.legend = TRUE),
   analysis = 1,
   docx = file.path(getwd(), "report.docx"),
   pdf = file.path(getwd(), "report.pdf"),
