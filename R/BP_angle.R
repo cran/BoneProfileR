@@ -21,17 +21,22 @@
   # La colonne 1 est y; je fais varier d'abord les y
   # La colonne 2 est x
   m <- expand.grid(1:dim(threshold)[2], 1:dim(threshold)[1])
-  a <- sapply(1:nrow(m), FUN = function(r) {
-    x <- m[r, 1]
-    y <- m[r, 2]
-    
-    angle <- atan2(y-center.y, x-center.x) %% (2*pi)
-    # angle <- ((angle+pi+rotation.angle) %% (2*pi))-pi
-    return(angle)
-    # return((atan((x-center.x)/(y-center.y))+pi*(as.numeric((y-center.y)<0))) %% (2*pi))
-  })
+  x <- m[, 1]-center.x
+  y <- m[, 2]-center.y
+  a_mat <- atan2(y, x) %% (2*pi)
   
-  a_mat <- matrix(a, nrow=dim(threshold)[1], ncol=dim(threshold)[2], byrow = TRUE)
+  
+  # a <- sapply(1:nrow(m), FUN = function(r) {
+  #   x <- m[r, 1]
+  #   y <- m[r, 2]
+  #   
+  #   angle <- atan2(y-center.y, x-center.x) %% (2*pi)
+  #   # angle <- ((angle+pi+rotation.angle) %% (2*pi))-pi
+  #   return(angle)
+  #   # return((atan((x-center.x)/(y-center.y))+pi*(as.numeric((y-center.y)<0))) %% (2*pi))
+  # })
+  
+  a_mat <- matrix(a_mat, nrow=dim(threshold)[1], ncol=dim(threshold)[2], byrow = TRUE)
   return(a_mat)
 
 }

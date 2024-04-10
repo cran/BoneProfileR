@@ -2,6 +2,7 @@
 % Please edit documentation in R/BoneProfileR-package.R
 \docType{package}
 \name{BoneProfileR-package}
+\alias{BoneProfileR}
 \alias{BoneProfileR-package}
 \title{A Model for Bone Compactness.}
 \description{
@@ -30,8 +31,8 @@ A model for bone compactness.
 \tabular{ll}{
  Package: \tab BoneProfileR\cr
  Type: \tab Package\cr
- Version: \tab 2.4 build 766\cr
- Date: \tab 2022-09-06\cr
+ Version: \tab 2.5 build 773\cr
+ Date: \tab 2024-04-10\cr
  License: \tab GPL (>= 2)\cr
  LazyLoad: \tab yes\cr
  }
@@ -127,6 +128,13 @@ layout(1)
  text(x=ScalePreviousPlot(x=0.95, y=0.95)$x, 
       y=ScalePreviousPlot(x=0.95, y=0.95)$y, labels="B", cex=3)
  # dev.off()
+ #' # How many times this package has been download
+library(cranlogs)
+BoneProfileR <- cran_downloads("BoneProfileR", from = "2021-10-07", 
+                            to = Sys.Date() - 1) 
+sum(BoneProfileR$count)
+plot(BoneProfileR$date, BoneProfileR$count, type="l", bty="n", 
+     xlab="Download date", ylab="Number of downloads")
 }
 }
 \references{
@@ -137,14 +145,21 @@ Vertebrate Paleontology 23: 458-461
 Laurin M, Girondot M, Loth M-M (2004) The evolution of long bone microstructure 
 and lifestyle in lissamphibians. Paleobiology 30: 589-613
 
-Gônet, Jordan, Jérémie Bardin, Marc Girondot, John R. Hutchinson, and Michel 
-Laurin. 2022. The Reptilian Locomotor and Postural Diversity Seen through the Prism of 
-Femoral Microanatomy: Paleobiological Implications for Some Permian and Mesozoic Reptiles. 
-Submitted
+Gônet, Jordan, Michel Laurin, and Marc Girondot. 2022. BoneProfileR: 
+The Next Step to Quantify, Model and Statistically Compare Bone 
+Section Compactness Profiles. Paleontologica Electronica. 25(1): a12
 
-Gônet, Jordan, Michel Laurin, and Marc Girondot.  2022.  “Bone 
-Profiler: The Next Step to Quantify, Model and Statistically Compare Bone 
-Section Compactness Profiles.”  Paleontologica Electronica. 25(1): a12
+Gônet, J., Bardin, J., Girondot, M., Hutchinson, J., Laurin, M., (2023). Deciphering 
+locomotion in reptiles: application of elliptic Fourier transforms to femoral microanatomy. 
+Zoological Journal of the Linnean Society 198, 1070-1091.
+
+Gônet, J., Bardin, J., Girondot, M., Hutchinson, J.R., Laurin, M., (2023). Locomotor 
+and postural diversity among reptiles viewed through the prism of femoral microanatomy: 
+palaeobiological implications for some Permian and Mesozoic taxa. Journal of Anatomy 242, 891-916.
+
+Gônet, J., Bardin, J., Girondot, M., Hutchinson, J.R., Laurin, M., (2023). Unravelling 
+the postural diversity of mammals: contribution of humeral cross-sections to palaeobiological 
+inferences. Journal of Mamalian Evolution 30, 321-337.
 }
 \author{
 Marc Girondot \email{marc.girondot@gmail.com}

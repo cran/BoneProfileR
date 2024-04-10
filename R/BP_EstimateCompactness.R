@@ -55,8 +55,8 @@ BP_EstimateCompactness <- function(bone, center="ontogenetic",
   center <- match.arg(center, choices = c("user", "mineralized", "ontogenic", 
                                           "unmineralized", "section", "ontogenetic"))
   if (center == "ontogenic") center <- "ontogenetic"
-  if ((center!="user") & partial) {
-    stop("When partial analysis is done, only user center must be used.")
+  if ((center != "user") & partial) {
+    stop("When analysis of partial bone section is performed, only user center must be used.")
   }
   
   if (is.null(RM_get(x=bone, RMname=analysis, valuename = "centers"))) {
@@ -64,7 +64,7 @@ BP_EstimateCompactness <- function(bone, center="ontogenetic",
   }
   
   
-  # Je formatte la coupe en threshold
+  # Je formate la coupe en threshold
   threshold <- RM_get(x=bone, RMname = analysis, valuename="threshold")
   if (is.null(threshold)) {
     threshold <- getFromNamespace(".BP_threshold", ns="BoneProfileR")(bone, analysis=analysis)
@@ -97,7 +97,7 @@ BP_EstimateCompactness <- function(bone, center="ontogenetic",
   
   if (is.na(center.x) | is.na(center.y)) stop("The requested center is not available")
   
- 
+  # Le contour calculé ici est pour un centre de la section minéralisé
   contour <- RM_get(x=bone, RMname=analysis, valuename = "contour")
   if (is.null(contour)) {
     contour <- getFromNamespace(".BP_contour", ns="BoneProfileR")(bone, analysis=analysis, 
@@ -109,41 +109,59 @@ BP_EstimateCompactness <- function(bone, center="ontogenetic",
     bone <- RM_add(x=bone, RMname = analysis, valuename="contour", 
                    value=contour)
   }
-
-  
-  # sum(contour) est le nombre de pixels mineralisés
-  
-  compactness <- data.frame(x=rep(NA, times=sum(contour)), 
-                            y=rep(NA, times=sum(contour)), 
-                            distance.center=rep(NA, times=sum(contour)), 
-                            distance.external=rep(NA, times=sum(contour)), 
-                            angle=rep(NA, times=sum(contour)),
-                            mineral=rep(NA, times=sum(contour)))
   
   
-  # if (pg) pb <- progress_bar$new(total = ncol(contour))
-  cpt <- 1
-  # contour a les x en ligne et les y en colonne
-  ytot <- 1:ncol(contour)
+  # sum(contour) est le nombre de pixels de la section
   
-  for (x in 1:nrow(contour)) {
+  compactness <- expand.grid(1:dim(bone)[2], 1:dim(bone)[1])
+  colnames(compactness) <- c("y", "x")
+  m1 <- compactness[, "x"] - center.x
+  m2 <- compactness[, "y"] - center.y
+  
+  compactness <- cbind(compactness, distance.center=sqrt(m1^2 + m2^2), 
+                       distance.external=NA, 
+                       angle=((atan2(m2, m1) + pi + rotation.angle) %% (2*pi))-pi,
+                       mineral=as.numeric(t(threshold)), 
+                       contour=as.vector(t(contour)))
+  
+ # Maintenant je ne garde que ceux de contour
+  compactness <- compactness[compactness$contour, c("x", "y", "distance.center", 
+                                                    "distance.external", "angle", 
+                                                    "mineral")]
+  
+  if (FALSE) {
+    compactness <- data.frame(x=rep(NA, times=sum(contour)), 
+                              y=rep(NA, times=sum(contour)), 
+                              distance.center=rep(NA, times=sum(contour)), 
+                              distance.external=rep(NA, times=sum(contour)), 
+                              angle=rep(NA, times=sum(contour)),
+                              mineral=rep(NA, times=sum(contour)))
     
-    lgn <- contour[x, ]
-    if (any(lgn)) {
-      pixel <- as.numeric(threshold[x, lgn])
-      y <- ytot[lgn]
-      dc <- sqrt((y-center.y)^2+(x-center.x)^2)
-      angle <- atan2(y-center.y, x-center.x)
-      angle <- ((angle+pi+rotation.angle) %% (2*pi))-pi
+    
+    # if (pg) pb <- progress_bar$new(total = ncol(contour))
+    cpt <- 1
+    # contour a les x en ligne et les y en colonne
+    ytot <- 1:ncol(contour)
+    
+    for (x in 1:nrow(contour)) {
       
+      lgn <- contour[x, ]
+      if (any(lgn)) {
+        pixel <- as.numeric(threshold[x, lgn])
+        y <- ytot[lgn]
+        dc <- sqrt((y-center.y)^2+(x-center.x)^2)
+        angle <- atan2(y-center.y, x-center.x)
+        angle <- ((angle+pi+rotation.angle) %% (2*pi))-pi
+        
+        
+        compactness[cpt:(cpt+length(y)-1), c("x", "y", "distance.center", 
+                                             "distance.external", "angle", "mineral")] <- c(rep(x, times=length(y)), y, dc, 
+                                                                                            rep(NA, times=length(y)), angle, pixel)
+        cpt <- cpt + length(y)
+      }
       
-      compactness[cpt:(cpt+length(y)-1), c("x", "y", "distance.center", 
-                                           "distance.external", "angle", "mineral")] <- c(rep(x, times=length(y)), y, dc, 
-                                                                                          rep(NA, times=length(y)), angle, pixel)
-      cpt <- cpt + length(y)
+      # if (pg) pb$tick()
     }
-    
-    # if (pg) pb$tick()
   }
   
   compactness <- cbind(compactness, 
@@ -178,8 +196,6 @@ BP_EstimateCompactness <- function(bone, center="ontogenetic",
   
   # Je dois aussi tronquer les autres
   
-  
-  
   compactness <- cbind(compactness, ratio.center=compactness$distance.center/compactness$distance.external)
   compactness <- cbind(compactness, 
                        cut.distance.center=cut(compactness$ratio.center, breaks = seq(from=0, to=1, length.out = cut.distance+1)))
@@ -212,8 +228,6 @@ BP_EstimateCompactness <- function(bone, center="ontogenetic",
   bone <- RM_add(x=bone, RMname = analysis, valuename="partial", value=partial)
   bone <- RM_add(x=bone, RMname = analysis, valuename="rotation.angle", value=rotation.angle)
   bone <- RM_add(x=bone, RMname = analysis, valuename="global.compactness", value=sum(compactness[, "mineral"])/(nrow(compactness)))
-  
-  
   
   if (show.plot) {
     #  bonex <<- bone

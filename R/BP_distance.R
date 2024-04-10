@@ -20,15 +20,26 @@
   
   # La colonne 1 est y; je fais varier d'abord les y
   # La colonne 2 est x
-  m <- expand.grid(1:dim(threshold)[2], 1:dim(threshold)[1])
+  d_mat <- expand.grid(1:dim(threshold)[2], 1:dim(threshold)[1])
+  m1 <- d_mat[, 1]
+  m2 <- d_mat[, 2]
+  m1 <- m1-center.x
+  m1 <- m1*m1
+  m2 <- m2-center.y
+  m2 <- m2*m2
+  m <- m1+m2
+  rm(m1)
+  rm(m2)
+  m <- sqrt(m)
+  
   # La colonne 1 va de 1 à 34; C'est x
   # La colonne 2 va de 1 à 24; c'est y
-  d <- sapply(1:nrow(m), FUN = function(r) sqrt((m[r, 1]-center.x)^2+(m[r, 2]-center.y)^2))
+  # d <- sapply(1:nrow(m), FUN = function(r) sqrt((m[r, 1]-center.x)^2+(m[r, 2]-center.y)^2))
   
   # d[2] c'est x=1, y=2
   # d[3] c'est x=1, y=3
   
-  d_mat <- matrix(d, nrow=dim(threshold)[1], ncol=dim(threshold)[2], byrow = TRUE)
+  d_mat <- matrix(m, nrow=dim(threshold)[1], ncol=dim(threshold)[2], byrow = TRUE)
   return(d_mat)
 
 }

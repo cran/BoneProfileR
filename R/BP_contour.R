@@ -11,13 +11,13 @@
   
   # Dans bone et threshold, le x est en dimension 1 et le y en dimension 2
   if (is.na(center.x) | is.na(center.y)) {
-    center.x <- mean(which(threshold, arr.ind = TRUE)[, 1])
-    center.y <- mean(which(threshold, arr.ind = TRUE)[, 2])
-  }
-  
+    center.y <- mean(which(threshold, arr.ind = TRUE)[, 1])
+    center.x <- mean(which(threshold, arr.ind = TRUE)[, 2])
+  } else {
   c. <- center.x
   center.x <- center.y
   center.y <- c.
+  }
   
   d_mat <- getFromNamespace(".BP_distance", ns="BoneProfileR")(bone, threshold=threshold, 
                                                                analysis=analysis, 
@@ -40,8 +40,8 @@
   
   la <- seq(from=0, to=2*pi, length.out=cut.angle+1)
   fa <- findInterval(a, la)
-  fa_mat <- matrix(fa, nrow=dim(threshold)[1], ncol=dim(threshold)[2], byrow = FALSE)
-  fa <- as.vector(fa)
+  # fa_mat <- matrix(fa, nrow=dim(threshold)[1], ncol=dim(threshold)[2], byrow = FALSE)
+  # fa <- as.vector(fa)
   
   dmax_a <- aggregate(d_Threshold, by=list(fa), FUN=function(x) ifelse(all(is.na(x)), NA, max(x, na.rm = TRUE)))
   dmax_a2 <- rep(NA, cut.angle)
