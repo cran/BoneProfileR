@@ -7,7 +7,7 @@
 #' @param fixed.parameters Fixed parameters of the model
 #' @param analysis Name or rank of analysis
 #' @param twosteps Should a 2-steps analysis be performed?
-#' @param priors If twosteps is TRUE, ell what prior should be used.
+#' @param priors If twosteps is TRUE, tell what prior should be used.
 #' @param silent Should the function displays some information?
 #' @description Estimation of the compactness of a bone section using radial model.\cr
 #' If the fitted.parameters and fixed.parameters are NULL and the analysis includes a 
@@ -23,7 +23,11 @@
 #' - The right of the section is 0.\cr
 #' If rotation.angle is different from 0, the value of rotation.angle is added to the angle modulo 2.pi.\cr
 #' The two-steps analysis performs first a quasi-Newton method, then a Bayesian MCMC and finally again a quasi-Newton method. 
-#' It generally ensures that global minimum is found. On the other hand, it doubles the time to complete for each angle.
+#' It generally ensures that global minimum is found. On the other hand, it doubles the time to complete for each angle.\cr
+#' To control the parallel computing, use: \cr
+#' options(mc.cores = [put here the number of cores you want use])\cr
+#' options(forking = FALSE)\cr
+#' The maximum number of cores is obtained by: parallel::detectCores()\cr
 #' @family BoneProfileR
 #' @examples
 #' \dontrun{
@@ -86,11 +90,19 @@
 #' @export
 
 
-BP_FitMLRadialCompactness <- function(bone, fitted.parameters=NULL, priors=NULL, 
-                                      fixed.parameters=NULL, analysis=1, silent=FALSE, twosteps=TRUE) {
+BP_FitMLRadialCompactness <- function(bone                  , 
+                                      fitted.parameters=NULL, 
+                                      priors=NULL           , 
+                                      fixed.parameters=NULL , 
+                                      analysis=1            , 
+                                      silent=FALSE          , 
+                                      twosteps=TRUE         ) {
   
   # fitted.parameters=c(P=0.5, S=0.05, Min=0.001, Max=0.999); fixed.parameters=c(K1=1, K2=1); analysis=NULL; silent=FALSE; twosteps=TRUE
   # fitted.parameters=NULL; fixed.parameters=NULL; analysis=1; silent=FALSE; twosteps=TRUE
+  
+  mc.cores <- getOption("mc.cores", parallel::detectCores())
+  forking <- getOption("forking", ifelse(.Platform$OS.type == "windows", FALSE, TRUE))
   
   
   if (is.null(fitted.parameters)) {
@@ -117,7 +129,10 @@ BP_FitMLRadialCompactness <- function(bone, fitted.parameters=NULL, priors=NULL,
   
   distance.center <- RM_get(x=bone, RMname=analysis, valuename = "compactness.synthesis")$distance.center
   
-  outmcl <- universalmclapply(1:dim(array.compactness)[1], FUN=function(angle) {
+  # set.seed(123)
+  
+  outmcl <- universalmclapply(1:dim(array.compactness)[1], mc.cores =  mc.cores, forking = forking, 
+                              FUN=function(angle) {
     
     # for (angle in 1:dim(array.compactness)[1]) {
     data_nm <- array.compactness[angle, , "0"]
@@ -133,6 +148,7 @@ BP_FitMLRadialCompactness <- function(bone, fitted.parameters=NULL, priors=NULL,
       lower <- lower_limit[names(fitted.parameters)]
       upper <- upper_limit[names(fitted.parameters)]
       
+      # message(as.character(angle))
       
       o <- optim(par=fitted.parameters, fn=BP_LnLCompactness, 
                  fixed.parameters=fixed.parameters, 
@@ -271,16 +287,16 @@ BP_FitMLRadialCompactness <- function(bone, fitted.parameters=NULL, priors=NULL,
       TRC <- NA
     }
     
-    return(list(result.radial=result.radial, 
-                radial.modeled.compactness=radial.modeled.compactness, 
-                observed.modeled.compactness=observed.modeled.compactness, 
-                observed.compactness=observed.compactness, 
-                anglefait=anglefait, 
-                TRC=TRC, 
+    return(list(result.radial=result.radial,
+                radial.modeled.compactness=radial.modeled.compactness,
+                observed.modeled.compactness=observed.modeled.compactness,
+                observed.compactness=observed.compactness,
+                anglefait=anglefait,
+                TRC=TRC,
                 LnL=LnL))
-  }, mc.cores = parallel::detectCores(), 
-  clusterExport=list(varlist=c("array.compactness", "twosteps", "fixed.parameters", 
+  }, clusterExport=list(varlist=c("array.compactness", "twosteps", "fixed.parameters",
                                "fitted.parameters", "distance.center"), envir=environment()))
+  
   
   result.radial <- sapply(X = outmcl, FUN = function(x) x["result.radial"])
   result.radial <- t(as.data.frame(result.radial))

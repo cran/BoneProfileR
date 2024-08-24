@@ -19,7 +19,7 @@ BP_FitMLRadialCompactness(
 
 \item{fitted.parameters}{Parameters of the model to be fitted}
 
-\item{priors}{If twosteps is TRUE, ell what prior should be used.}
+\item{priors}{If twosteps is TRUE, tell what prior should be used.}
 
 \item{fixed.parameters}{Fixed parameters of the model}
 
@@ -47,7 +47,11 @@ BP_EstimateCompactness():\cr
 - The right of the section is 0.\cr
 If rotation.angle is different from 0, the value of rotation.angle is added to the angle modulo 2.pi.\cr
 The two-steps analysis performs first a quasi-Newton method, then a Bayesian MCMC and finally again a quasi-Newton method. 
-It generally ensures that global minimum is found. On the other hand, it doubles the time to complete for each angle.
+It generally ensures that global minimum is found. On the other hand, it doubles the time to complete for each angle.\cr
+To control the parallel computing, use: \cr
+options(mc.cores = [put here the number of cores you want use])\cr
+options(forking = FALSE)\cr
+The maximum number of cores is obtained by: parallel::detectCores()\cr
 }
 \details{
 BP_FitMLRadialCompactness estimates likelihood of model of a bone section

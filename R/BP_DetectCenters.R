@@ -4,8 +4,12 @@
 #' @return The orignial bone object with a new attribute for centers
 #' @param bone The bone image to be used
 #' @param analysis The name or rank of analysis
+#' @param method Can be Fast, Accurate, FastConvex, or AccurateConvex
 #' @param show.plot should plot is shown ?
-#' @description Detects the centers of an image. Note that this function must not be used with partial bone section.
+#' @description Detects the centers of an image. Note that this function must not be used with partial bone section.\cr
+#' The method Fast works well with the convex bone section while if the section is concave, Accurate is slower but works well in all circonstances.\cr
+#' Fast method is maintained here only for compatibility with versions <3.1 of BoneProfileR.\cr
+#' If the section is concave, the methods FastConvex and AccurateConvex return a minimum convex section.
 #' @family BoneProfileR
 #' @examples
 #' \dontrun{
@@ -22,11 +26,17 @@
 #'  plot(bone, type="mineralized", show.grid=FALSE)
 #'  plot(bone, type="unmineralized", show.grid=FALSE)
 #'  plot(bone, type="section", show.grid=FALSE)
+#'  # Note that some parts of the section are concave but it does not give problems in the analysis
+#'  # For section with very strong concavity, it could be safer to use:
+#'  bone <- BP_DetectCenters(bone=bone, analysis="logistic", method="AccurateConvex")
+#'  plot(bone, type="mineralized", show.grid=FALSE)
+#'  plot(bone, type="unmineralized", show.grid=FALSE)
+#'  plot(bone, type="section", show.grid=FALSE)
 #' }
 #' @export
 
 
-BP_DetectCenters <- function(bone, analysis=1, show.plot=TRUE) {
+BP_DetectCenters <- function(bone, analysis=1, show.plot=TRUE, method="Accurate") {
   
   if (is.null(RM_get(x=bone, RMname=analysis, valuename = "bg")) | 
       is.null(RM_get(x=bone, RMname=analysis, valuename = "fg"))) {
@@ -52,7 +62,8 @@ BP_DetectCenters <- function(bone, analysis=1, show.plot=TRUE) {
                                                                 analysis=analysis, 
                                                                 partial=FALSE, 
                                                                center.x=NA, 
-                                                               center.y=NA)
+                                                               center.y=NA, 
+                                                               method=method)
   bone <- RM_add(x=bone, RMname = analysis, valuename="contour", 
                  value=contour)
  # }
@@ -96,6 +107,7 @@ BP_DetectCenters <- function(bone, analysis=1, show.plot=TRUE) {
                                                                          GC_user.y=NA, 
                                                                          GC_ontogenic.x=GC_ontoCenter.x, 
                                                                          GC_ontogenic.y=GC_ontoCenter.y))
+  bone <- RM_add(x=bone, RMname = analysis, valuename="method", value=method)
   
   if (show.plot) plot(bone, message="Do not forget to check thresholding")
   return(bone)

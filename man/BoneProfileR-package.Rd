@@ -31,8 +31,8 @@ A model for bone compactness.
 \tabular{ll}{
  Package: \tab BoneProfileR\cr
  Type: \tab Package\cr
- Version: \tab 2.5 build 773\cr
- Date: \tab 2024-04-10\cr
+ Version: \tab 3.1 build 802\cr
+ Date: \tab 2024-08-24\cr
  License: \tab GPL (>= 2)\cr
  LazyLoad: \tab yes\cr
  }
@@ -47,7 +47,10 @@ path_Hedgehog <- system.file("extdata", "Erinaceus_europaeus_fem_2-1_small.png",
  plot(bone, type="original")
  bone <- BP_DetectBackground(bone=bone, analysis="logistic")
  bone <- BP_DetectForeground(bone=bone, analysis="logistic")
- bone <- BP_DetectCenters(bone=bone, analysis="logistic")
+ bone <- BP_DetectCenters(bone=bone, analysis="logistic", method="Accurate")
+ # Note that some parts of the section are concave but it does not give problems in the analysis
+ # For section with very strong concavity, it is safer to use:
+ # bone <- BP_DetectCenters(bone=bone, analysis="logistic", method="AccurateConvex")
  plot(bone, type="original")
  plot(bone, type="mineralized")
  plot(bone, type="unmineralized")

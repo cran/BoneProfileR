@@ -10,13 +10,21 @@
   bg <- RM_get(x=bone, RMname=analysis, valuename = "bg")
   fg <- RM_get(x=bone, RMname=analysis, valuename = "fg")
   
-  Distance_bg <- sqrt((bone[, , 1, 1]-col2rgb(bg)["red", 1]/255)^2+
-                        (bone[, , 1, 2]-col2rgb(bg)["green", 1]/255)^2+
-                        (bone[, , 1, 3]-col2rgb(bg)["blue", 1]/255)^2)
-  Distance_fg <- sqrt((bone[, , 1, 1]-col2rgb(fg)["red", 1]/255)^2+
-                        (bone[, , 1, 2]-col2rgb(fg)["green", 1]/255)^2+
-                        (bone[, , 1, 3]-col2rgb(fg)["blue", 1]/255)^2)
+  bg_red <- col2rgb(bg)["red", 1]/255
+  bg_green <- col2rgb(bg)["green", 1]/255
+  bg_blue <- col2rgb(bg)["blue", 1]/255
   
+  fg_red <- col2rgb(fg)["red", 1]/255
+  fg_green <- col2rgb(fg)["green", 1]/255
+  fg_blue <- col2rgb(fg)["blue", 1]/255
+  
+  
+  Distance_bg <- sqrt((bone[, , 1, 1]-bg_red)^2+
+                        (bone[, , 1, 2]-bg_green)^2+
+                        (bone[, , 1, 3]-bg_blue)^2)
+  Distance_fg <- sqrt((bone[, , 1, 1]-fg_red)^2+
+                        (bone[, , 1, 2]-fg_green)^2+
+                        (bone[, , 1, 3]-fg_blue)^2)
   
   return(Distance_bg>Distance_fg)
 }

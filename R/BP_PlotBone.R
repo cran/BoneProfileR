@@ -21,15 +21,15 @@
 #' @param ... Not used
 #' @description Display a bone section.\cr
 #' type value can be:\cr
-#' Image plot: original, mineralized, unmineralized, section\cr
+#' Image plot: `original`, `mineralized`, `unmineralized`, `section`\cr
 #' Original is the original image, mineralized is the mineral interpretation of the section, 
 #' unmineralized is the unmineralized interpretation of the section, section is the interpretation of the section.\cr
-#' colors show the histograms of pixel information with foreground and background colors if they are defined.\cr
-#' 3Dcolors show the pixels colors in 3D\cr
-#' Global analysis: observations, model, observations+model\cr
-#' Radial analysis: radial\cr
+#' `colors` shows the histograms of pixel information with foreground and background colors if they are defined.\cr
+#' `3Dcolors` show the pixels colors in 3D\cr
+#' Global analysis: `observations`, `model`, `observations+model`\cr
+#' Radial analysis: `radial`\cr
 #' If angle is not null and a radial analysis exists, it will show the model for this angle.\cr
-#' mcmc: It will show the posterior distribution of parameter
+#' `mcmc`: It will show the posterior distribution of parameter
 #' @family BoneProfileR
 #' @examples
 #' \dontrun{
@@ -100,17 +100,19 @@ plot.BoneProfileR <- function(x, message=NULL, type="original", angle=NULL,
   oldpar <- par(no.readonly = TRUE)    # code line i
   if (restorePar) on.exit(par(oldpar))            # code line i + 1
   
+  type <- tolower(type)
+  
   type <- match.arg(type, choices = c("original", "mineralized", 
                                       "unmineralized", "section", "radial", 
                                       "observations", "model", "observations+model", 
-                                      "mcmc", "colors", "3Dcolors"))
+                                      "mcmc", "colors", "3dcolors"))
   
   out <- BP_ListAnalyses(bone=x)
   if (is.null(out[analysis][[1]]) & (type != "original") & (type != "colors")) {
     stop(paste0("The analysis ", analysis, " does not exist"))
   }
   
-  if (type == "3Dcolors") {
+  if (type == "3dcolors") {
 
     threshold <- RM_get(x=bone, RMname=analysis, valuename = "threshold")
     

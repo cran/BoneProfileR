@@ -63,6 +63,8 @@ BP_LnLCompactness <- function(par, bone=NULL,
               prob=c, log = TRUE)
   
   LnL <- -sum(L)
+  if (is.na(LnL)) LnL <- 1E6
+  # message(paste0("-LnL", as.character(LnL)))
   return(LnL)
 }
 

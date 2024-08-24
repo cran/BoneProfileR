@@ -9,6 +9,7 @@
 #' @param partial Is the section partial?
 #' @param rotation.angle The angle of rotation for analysis
 #' @param analysis The name or rank of analysis
+#' @param method Can be Fast, Accurate, FastConvex, or AccurateConvex
 #' @param show.plot should plot is shown ?
 #' @description Estimation of the compactness of a bone section.\cr
 #' The reference for radial estimation of compactness is the trigonometric circle for rotation.angle=0 in 
@@ -17,7 +18,12 @@
 #' - The left of the section is located at -pi and +pi.\cr
 #' - The bottom of the section is located at pi/2.\cr
 #' - The right of the section is 0.\cr
-#' If rotation.angle is different from 0, the value of rotation.angle is added to the angle modulo 2.pi.
+#' If rotation.angle is different from 0, the value of rotation.angle is added to the angle modulo 2.pi.\cr
+#' The method Fast works well with the convex bone section while if the section is concave, Accurate is slower but works well in all circonstances.\cr
+#' Fast method is maintained here only for compatibility with versions <3.1 of BoneProfileR.\cr
+#' If the section is concave, the methods FastConvex and AccurateConvex return a minimum convex section.\cr
+#' If the center has been automatically detected, the method parameter is ignored because it has already
+#' been used with the function BP_DetectCenters().
 #' @family BoneProfileR
 #' @examples
 #' \dontrun{
@@ -40,18 +46,22 @@
 #' @export
 
 
-BP_EstimateCompactness <- function(bone, center="ontogenetic", 
-                                   partial=FALSE, 
-                                   cut.angle=60, cut.distance=100, 
-                                   rotation.angle=0, 
-                                   analysis=1, show.plot=TRUE) {
+BP_EstimateCompactness <- function(bone                          , 
+                                   center="ontogenetic"          , 
+                                   partial=FALSE                 , 
+                                   cut.angle=60                  , 
+                                   cut.distance=100              , 
+                                   rotation.angle=0              , 
+                                   analysis=1                    , 
+                                   method="Accurate"             ,
+                                   show.plot=TRUE                ) {
   
   # center="ontogenetic"; partial=FALSE; cut.angle=60; cut.distance=100; analysis=1; rotation.angle=0; show.plot=TRUE
   # center="user"; partial=TRUE; cut.angle=60; cut.distance=100; analysis=1; rotation.angle=0; show.plot=TRUE
   
   oldpar <- par(no.readonly = TRUE)    # code line i
-  on.exit(par(oldpar))            # code line i + 1
-  
+  on.exit(par(oldpar))                 # code line i + 1
+  center <- tolower(center)
   center <- match.arg(center, choices = c("user", "mineralized", "ontogenic", 
                                           "unmineralized", "section", "ontogenetic"))
   if (center == "ontogenic") center <- "ontogenetic"
@@ -72,6 +82,7 @@ BP_EstimateCompactness <- function(bone, center="ontogenetic",
                    value=threshold)
   }
   
+  bone_gs <- grayscale(bone)
   
   if (center == "user") {
     center.x <- RM_get(x=bone, RMname=analysis, valuename = "centers")["GC_user.x"]
@@ -104,10 +115,14 @@ BP_EstimateCompactness <- function(bone, center="ontogenetic",
                                                                   threshold=threshold, 
                                                                   partial=partial, 
                                                                   center.x=center.x, 
-                                                                  center.y=center.y)
+                                                                  center.y=center.y, 
+                                                                  method=method)
     
     bone <- RM_add(x=bone, RMname = analysis, valuename="contour", 
                    value=contour)
+    bone <- RM_add(x=bone, RMname = analysis, valuename="method", value=method)
+  } else {
+    message("The method value was not used because it was already setup when BP_DetectCenters() was used.")
   }
   
   
@@ -122,12 +137,24 @@ BP_EstimateCompactness <- function(bone, center="ontogenetic",
                        distance.external=NA, 
                        angle=((atan2(m2, m1) + pi + rotation.angle) %% (2*pi))-pi,
                        mineral=as.numeric(t(threshold)), 
+                       gradient=as.numeric(t(bone_gs[, , 1, 1])), 
                        contour=as.vector(t(contour)))
+  l360 <- seq(from=-pi, to=pi, length.out = 360+1)
+  compactness <- cbind(compactness, 
+                       cut.360=cut(compactness$angle, breaks = l360))
+  levels.360 <- cut(l360, breaks = l360)[-1]
+  for (l in levels.360) {
+    subangle <- compactness[compactness$cut.360 == l, ]
+    subangleOut <- subangle[!subangle$contour, ]
+    compactness[(compactness$distance.center >= min(subangleOut$distance.center)) & (compactness$cut.360 == l), "contour"] <- FALSE
+  }
+  
   
  # Maintenant je ne garde que ceux de contour
+  # C'est là où je ne dois garder 
   compactness <- compactness[compactness$contour, c("x", "y", "distance.center", 
                                                     "distance.external", "angle", 
-                                                    "mineral")]
+                                                    "mineral", "gradient", "cut.360")]
   
   if (FALSE) {
     compactness <- data.frame(x=rep(NA, times=sum(contour)), 
@@ -164,14 +191,16 @@ BP_EstimateCompactness <- function(bone, center="ontogenetic",
     }
   }
   
-  compactness <- cbind(compactness, 
-                       cut.360=cut(compactness$angle, breaks = seq(from=-pi, to=pi, length.out = 360+1)))
+  # compactness <- cbind(compactness, 
+  #                      cut.360=cut(compactness$angle, breaks = seq(from=-pi, to=pi, length.out = 360+1)))
+  # levels.360 <- cut(seq(from=-pi, to=pi, length.out = 360), breaks = seq(from=-pi, to=pi, length.out = 360+1))
+  
   compactness <- cbind(compactness, 
                        cut.angle=cut(compactness$angle, breaks = seq(from=-pi, to=pi, length.out = cut.angle+1)))
   
   # Cut angle est à 360 sections
   peripherie <- NULL
-  for (l in levels(compactness$cut.360)) {
+  for (l in levels.360) {
     dc <- subset(compactness, subset = (compactness$cut.360 == l), select="distance.center")
     if (nrow(dc) != 0) {
       m <- max(dc[, "distance.center"])
@@ -210,6 +239,18 @@ BP_EstimateCompactness <- function(bone, center="ontogenetic",
     nm <- c(nm, sum(t[, l, "0"]))
   }
   
+  gr <- aggregate(compactness$gradient, by=list(compactness$cut.angle, compactness$cut.distance.center), 
+                     FUN=mean)
+  gr <- with(gr, {
+    out <- matrix(nrow=nlevels(Group.1), ncol=nlevels(Group.2),
+                  dimnames=list(levels(Group.1), levels(Group.2)))
+    out[cbind(Group.1, Group.2)] <- x
+    out
+  })
+  
+  gr <- gr[rownames(t), colnames(t)]
+  
+  
   compactness.synthesis <- data.frame(distance.center=(seq(from=0, to=1, length.out = cut.distance+1)[-1]+
                                                          rev(rev(seq(from=0, to=1, length.out = cut.distance+1))[-1]))/2, 
                                       mineralized=m, 
@@ -221,6 +262,7 @@ BP_EstimateCompactness <- function(bone, center="ontogenetic",
   
   bone <- RM_add(x=bone, RMname = analysis, valuename="compactness", value=compactness)
   bone <- RM_add(x=bone, RMname = analysis, valuename="array.compactness", value=t)
+  bone <- RM_add(x=bone, RMname = analysis, valuename="array.gradient", value=gr)
   bone <- RM_add(x=bone, RMname = analysis, valuename="cut.distance.center", value=seq(from=0, to=1, length.out = cut.distance+1))
   bone <- RM_add(x=bone, RMname = analysis, valuename="cut.angle", value=seq(from=-pi, to=pi, length.out = cut.angle+1))
   bone <- RM_add(x=bone, RMname = analysis, valuename="used.centers", value=c(center.x=unname(center.x), center.y=unname(center.y)))

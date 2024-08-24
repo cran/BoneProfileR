@@ -4,7 +4,7 @@
 \alias{BP_DetectCenters}
 \title{Detect the centers of an image}
 \usage{
-BP_DetectCenters(bone, analysis = 1, show.plot = TRUE)
+BP_DetectCenters(bone, analysis = 1, show.plot = TRUE, method = "Accurate")
 }
 \arguments{
 \item{bone}{The bone image to be used}
@@ -12,12 +12,17 @@ BP_DetectCenters(bone, analysis = 1, show.plot = TRUE)
 \item{analysis}{The name or rank of analysis}
 
 \item{show.plot}{should plot is shown ?}
+
+\item{method}{Can be Fast, Accurate, FastConvex, or AccurateConvex}
 }
 \value{
 The orignial bone object with a new attribute for centers
 }
 \description{
-Detects the centers of an image. Note that this function must not be used with partial bone section.
+Detects the centers of an image. Note that this function must not be used with partial bone section.\cr
+The method Fast works well with the convex bone section while if the section is concave, Accurate is slower but works well in all circonstances.\cr
+Fast method is maintained here only for compatibility with versions <3.1 of BoneProfileR.\cr
+If the section is concave, the methods FastConvex and AccurateConvex return a minimum convex section.
 }
 \details{
 BP_DetectCenters detects the centers of an image
@@ -34,6 +39,12 @@ path_Hedgehog <- system.file("extdata", "Erinaceus_europaeus_fem_2-1_small.png",
  bone <- BP_DetectBackground(bone=bone)
  bone <- BP_DetectForeground(bone=bone)
  bone <- BP_DetectCenters(bone=bone)
+ plot(bone, type="mineralized", show.grid=FALSE)
+ plot(bone, type="unmineralized", show.grid=FALSE)
+ plot(bone, type="section", show.grid=FALSE)
+ # Note that some parts of the section are concave but it does not give problems in the analysis
+ # For section with very strong concavity, it could be safer to use:
+ bone <- BP_DetectCenters(bone=bone, analysis="logistic", method="AccurateConvex")
  plot(bone, type="mineralized", show.grid=FALSE)
  plot(bone, type="unmineralized", show.grid=FALSE)
  plot(bone, type="section", show.grid=FALSE)

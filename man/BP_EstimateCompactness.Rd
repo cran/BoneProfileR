@@ -12,6 +12,7 @@ BP_EstimateCompactness(
   cut.distance = 100,
   rotation.angle = 0,
   analysis = 1,
+  method = "Accurate",
   show.plot = TRUE
 )
 }
@@ -30,6 +31,8 @@ BP_EstimateCompactness(
 
 \item{analysis}{The name or rank of analysis}
 
+\item{method}{Can be Fast, Accurate, FastConvex, or AccurateConvex}
+
 \item{show.plot}{should plot is shown ?}
 }
 \value{
@@ -43,7 +46,12 @@ BP_EstimateCompactness():\cr
 - The left of the section is located at -pi and +pi.\cr
 - The bottom of the section is located at pi/2.\cr
 - The right of the section is 0.\cr
-If rotation.angle is different from 0, the value of rotation.angle is added to the angle modulo 2.pi.
+If rotation.angle is different from 0, the value of rotation.angle is added to the angle modulo 2.pi.\cr
+The method Fast works well with the convex bone section while if the section is concave, Accurate is slower but works well in all circonstances.\cr
+Fast method is maintained here only for compatibility with versions <3.1 of BoneProfileR.\cr
+If the section is concave, the methods FastConvex and AccurateConvex return a minimum convex section.\cr
+If the center has been automatically detected, the method parameter is ignored because it has already
+been used with the function BP_DetectCenters().
 }
 \details{
 BP_EstimateCompactness estimates the compactness of a bone section
