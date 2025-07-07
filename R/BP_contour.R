@@ -1,10 +1,24 @@
 # #' .BP_contour estimate a contour matrix
 
-.BP_contour <- function(bone, threshold=NULL, analysis=1, partial=FALSE, center.x=NA, center.y=NA, method="accurate") {
+.BP_contour <- function(bone               , 
+                        threshold=NULL     , 
+                        analysis=1         , 
+                        partial=FALSE      , 
+                        center.x=NA        , 
+                        center.y=NA        , 
+                        method="accurate"  ) {
   
   # method can be fast, accurate, fastconvex, or accurateconvex
   
+# bone_x <- threshold
+# boneEssai <- bone
+#  boneEssai[, , 1, 1] <- !bone_x
+#  if (dim(boneEssai)[4]>1) boneEssai[, , 1, 2] <- !bone_x
+#  if (dim(boneEssai)[4]>2) boneEssai[, , 1, 3] <- !bone_x
+# getFromNamespace("plot.cimg", ns="imager")(boneEssai, bty="n", axes=FALSE, xlab="", ylab="", asp = 1)
+  
   method <- tolower(method)
+  method <- match.arg(method, choices = c("accurate", "fast", "fastconvex", "accurateconvex"))
   
   # analysis=1; threshold <- NULL; partial=FALSE; center.x=NA; center.y=NA
   if (is.null(threshold)) threshold <- RM_get(x=bone, RMname = analysis, valuename="threshold")
@@ -21,21 +35,27 @@
     c. <- center.x
     center.x <- center.y
     center.y <- c.
+    # points(center.y, center.x, col="red")
   }
   
   contourInitial <- function(bone, analysis=1, center.x, center.y) {
-    d_mat <- getFromNamespace(".BP_distance", ns="BoneProfileR")(bone, threshold=threshold, 
+    d_mat <- getFromNamespace(".BP_distance", ns="BoneProfileR")(bone, 
+                                                                 threshold=threshold, 
                                                                  analysis=analysis, 
-                                                                 center.x=center.x, center.y=center.y)
+                                                                 center.x=center.x, 
+                                                                 center.y=center.y)
     
     d_Threshold_mat <- ifelse(threshold, d_mat, NA)
     d_Threshold <- as.vector(d_Threshold_mat)
     
-    a_mat <- getFromNamespace(".BP_angle", ns="BoneProfileR")(bone, threshold=threshold, 
+    a_mat <- getFromNamespace(".BP_angle", ns="BoneProfileR")(bone, 
+                                                              threshold=threshold, 
                                                               analysis=analysis, 
-                                                              center.x=center.x, center.y=center.y)
+                                                              center.x=center.x, 
+                                                              center.y=center.y)
     a <- as.vector(a_mat)
-    cut.angle <- 360*2
+    cut.angle <- (dim(threshold)[1]+dim(threshold)[2])*2
+    # if (cut.angle > 360*2) cut.angle <- 360*2
     
     la <- seq(from=0, to=2*pi, length.out=cut.angle+1)
     fa <- findInterval(a, la)
@@ -56,6 +76,13 @@
   
   if (grepl("fast", method)) {
     contour <- contourInitial(bone, analysis, center.x, center.y)
+    # bone_x <- contour
+    # boneEssai <- bone
+    #  boneEssai[, , 1, 1] <- !bone_x
+    #  if (dim(boneEssai)[4]>1) boneEssai[, , 1, 2] <- !bone_x
+    #  if (dim(boneEssai)[4]>2) boneEssai[, , 1, 3] <- !bone_x
+    # getFromNamespace("plot.cimg", ns="imager")(boneEssai, bty="n", axes=FALSE, xlab="", ylab="", asp = 1)
+    
   }
   
   if (grepl("accurate", method)) {
@@ -63,10 +90,19 @@
     contourHR <- contourInitial(bone, analysis, center.x = attributes(bone)$dim[1], center.y = 1)
     contourBR <- contourInitial(bone, analysis, center.x = attributes(bone)$dim[1], center.y = attributes(bone)$dim[2])
     contourBL <- contourInitial(bone, analysis, center.x = 1, center.y = attributes(bone)$dim[2])
-    contour <- (contourHL + contourHR + contourBR + contourBL == 4)
+    contour_x <- contourInitial(bone, analysis, center.x, center.y)
+ 
+    contourML <- contourInitial(bone, analysis, center.x = attributes(bone)$dim[1]/2, center.y = 1)
+    contourMR <- contourInitial(bone, analysis, center.x = attributes(bone)$dim[1], center.y = attributes(bone)$dim[2]/2)
+    contourBM <- contourInitial(bone, analysis, center.x = attributes(bone)$dim[1]/2, center.y = attributes(bone)$dim[2])
+    contourBM <- contourInitial(bone, analysis, center.x = 1, center.y = attributes(bone)$dim[2]/2)
+
+    contour <- (contourHL + contourHR + contourBR + contourBL + contour_x + 
+                  contourML + contourMR + contourBM + contourBM  == 9)
+    
     # attributes(contour)$dim <- c(attributes(contour)$dim, 1, 1)
     # attributes(contour)$class <- c("cimg", "imager_array", "numeric") 
-    # getFromNamespace("plot.cimg", ns="imager")(contourF, bty="n", axes=FALSE, xlab="", ylab="", asp = 1)
+    # getFromNamespace("plot.cimg", ns="imager")(contour, bty="n", axes=FALSE, xlab="", ylab="", asp = 1)
   }
   
   if (grepl("convex", method)) {

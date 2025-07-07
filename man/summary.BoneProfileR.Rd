@@ -4,14 +4,22 @@
 \alias{summary.BoneProfileR}
 \title{Plot a bone section}
 \usage{
-\method{summary}{BoneProfileR}(object, max.level = FALSE, analysis = 1, ...)
+\method{summary}{BoneProfileR}(
+  object,
+  analysis = 1,
+  periodic.angles = "all",
+  periodic.angles.replicate.CI = 2000,
+  ...
+)
 }
 \arguments{
 \item{object}{The bone image}
 
-\item{max.level}{If TRUE, will return all list element of the objects}
+\item{analysis}{The analysis to report the compactness}
 
-\item{analysis}{The analysis to report the global compacteness}
+\item{periodic.angles}{A vector indicating which angle to report for periodic analysis}
+
+\item{periodic.angles.replicate.CI}{Number of replicates to estimate CI}
 
 \item{...}{Not used}
 }
@@ -34,6 +42,28 @@ library(BoneProfileR)
                              package = "BoneProfileR")
  bone <- BP_OpenImage(file=path_Hedgehog)
  summary(bone)
+ 
+ bone <- BP_DetectBackground(bone=bone, analysis="logistic")
+ bone <- BP_DetectForeground(bone=bone, analysis="logistic")
+ bone <- BP_DetectCenters(bone=bone, analysis="logistic")
+ bone <- BP_EstimateCompactness(bone, analysis="logistic", cut.angle = 60)
+ bone <- BP_FitMLCompactness(bone, analysis="logistic", twosteps=TRUE)
+ plot(bone, type="observations+model", analysis="logistic")
+ par <- BP_GetFittedParameters(bone, analysis="logistic", ML=TRUE, return.all=FALSE)[, "mean"]
+ options(mc.cores=parallel::detectCores())
+ 
+ #############################################
+ # Periodic analysis
+ #############################################
+ bone <- BP_FitMLPeriodicCompactness(bone, analysis="logistic", control.optim=list(trace=2), 
+                                     fitted.parameters=c(par, PSin=0.001, PCos=0.001, 
+                                     SSin=0.001, SCos=0.001, MinSin=0.001, MinCos=0.001, 
+                                     MaxSin=0.001, MaxCos=0.001), replicates.CI=2000)
+ bone <- BP_FitBayesianPeriodicCompactness(bone, analysis="logistic", replicates.CI=2000)
+ 
+ summary(object=bone, analysis="logistic")
+ summary(object=bone, analysis="logistic", 
+         periodic.angles=seq(from=-0.1, to=0.1, length.out=10))
 }
 }
 \seealso{
@@ -48,7 +78,9 @@ Other BoneProfileR:
 \code{\link{BP_DuplicateAnalysis}()},
 \code{\link{BP_EstimateCompactness}()},
 \code{\link{BP_FitBayesianCompactness}()},
+\code{\link{BP_FitBayesianPeriodicCompactness}()},
 \code{\link{BP_FitMLCompactness}()},
+\code{\link{BP_FitMLPeriodicCompactness}()},
 \code{\link{BP_FitMLRadialCompactness}()},
 \code{\link{BP_GetFittedParameters}()},
 \code{\link{BP_ListAnalyses}()},

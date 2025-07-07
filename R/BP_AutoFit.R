@@ -67,12 +67,12 @@ BP_AutoFit <- function(file=file.choose(), xlsx=TRUE,
   bone <- BP_FitMLCompactness(bone, analysis="logistic", silent=TRUE, 
                               fixed.parameters = c(K1=1, K2=1, Max=3, Min=-3), 
                               fitted.parameters = c(P=0.5, S=0.1))
-  fittedpar <- BP_GetFittedParameters(bone, analysis="logistic")
+  fittedpar <- BP_GetFittedParameters(bone, analysis="logistic", ML=TRUE, return.all=FALSE)
   bone <- BP_FitMLCompactness(bone, analysis="logistic", silent=TRUE, 
                               fixed.parameters = c(K1=1, K2=1), 
                               fitted.parameters = c(fittedpar, Max=2, Min=-2))
   setTxtProgressBar(pb, 8)
-  fittedpar <- BP_GetFittedParameters(bone, analysis="logistic")
+  fittedpar <- BP_GetFittedParameters(bone, analysis="logistic", ML=TRUE, return.all=FALSE)
   setTxtProgressBar(pb, 9)
   bone <- BP_DuplicateAnalysis(bone, from="logistic", to="flexit")
   setTxtProgressBar(pb, 10)
@@ -80,8 +80,8 @@ BP_AutoFit <- function(file=file.choose(), xlsx=TRUE,
                               fitted.parameters=c(fittedpar, K1=1, K2=1), 
                               fixed.parameters=NULL, analysis="flexit", silent=TRUE)
   setTxtProgressBar(pb, 14)
-  outAIC <- compare_AIC(Logistic=BP_GetFittedParameters(bone, analysis="logistic", alloptim=TRUE), 
-                        Flexit=BP_GetFittedParameters(bone, analysis="flexit", alloptim=TRUE), silent = TRUE)
+  outAIC <- compare_AIC(Logistic=BP_GetFittedParameters(bone, analysis="logistic", ML=TRUE, return.all=TRUE), 
+                        Flexit=BP_GetFittedParameters(bone, analysis="flexit", ML=TRUE, return.all=TRUE), silent = TRUE)
   
   if (outAIC$DeltaAIC[1]==0) {
     # Model Logistic

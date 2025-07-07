@@ -36,17 +36,21 @@
 #' @export
 
 
-BP_DetectCenters <- function(bone, analysis=1, show.plot=TRUE, method="Accurate") {
-  
-  if (is.null(RM_get(x=bone, RMname=analysis, valuename = "bg")) | 
-      is.null(RM_get(x=bone, RMname=analysis, valuename = "fg"))) {
-    stop("You must first setup background and foreground colors") 
-  }
+BP_DetectCenters <- function(bone              , 
+                             analysis=1        , 
+                             show.plot=TRUE    , 
+                             method="Accurate" ) {
   
   bg <- RM_get(x=bone, RMname=analysis, valuename = "bg")
   fg <- RM_get(x=bone, RMname=analysis, valuename = "fg")
   
-  # Je formatte la coupe en threshold
+  if (is.null(bg) | 
+      is.null(fg)) {
+    stop("You must first setup background and foreground colors") 
+  }
+  
+  
+  # Je formate la coupe en threshold
   # if (is.null(RM_get(x=bone, RMname=analysis, valuename = "threshold"))) {
     threshold <- getFromNamespace(".BP_threshold", ns="BoneProfileR")(bone)
     bone <- RM_add(x=bone, RMname = analysis, valuename="threshold", 
@@ -54,16 +58,31 @@ BP_DetectCenters <- function(bone, analysis=1, show.plot=TRUE, method="Accurate"
  # } else {
  #   threshold <- RM_get(x=bone, RMname = analysis, valuename="threshold")
 #  }
+    
+    # bone_ec <- bone
+    # bone_ec[, , 1, 1:3] <- ifelse(threshold, 1, 0)
+    # getFromNamespace("plot.cimg", ns="imager")(bone_ec, bty="n", axes=FALSE, xlab="", ylab="", asp = 1)
+
   
 #  contour <- RM_get(x=bone, RMname = analysis, valuename="contour")
  #  if (is.null(contour)){
-  contour <- getFromNamespace(".BP_contour", ns="BoneProfileR")(bone, 
-                                                                threshold=threshold, 
-                                                                analysis=analysis, 
-                                                                partial=FALSE, 
-                                                               center.x=NA, 
-                                                               center.y=NA, 
-                                                               method=method)
+  contour <- getFromNamespace(".BP_contour", ns="BoneProfileR")(bone                , 
+                                                                threshold=threshold , 
+                                                                analysis=analysis   , 
+                                                                partial=FALSE       , 
+                                                                center.x=NA         , 
+                                                                center.y=NA         , 
+                                                                method=method       )
+  
+  # bone_ec <- bone
+  # bone_ec[, , 1, 1:3] <- ifelse(contour, 1, 0)
+  # getFromNamespace("plot.cimg", ns="imager")(bone_ec, bty="n", axes=FALSE, xlab="", ylab="", asp = 1)
+  
+  # bone_ec <- bone
+  # bone_ec[, , 1, 1:3] <- ifelse(contour & !threshold, 1, 0)
+  # getFromNamespace("plot.cimg", ns="imager")(bone_ec, bty="n", axes=FALSE, xlab="", ylab="", asp = 1)
+  
+  
   bone <- RM_add(x=bone, RMname = analysis, valuename="contour", 
                  value=contour)
  # }
@@ -87,6 +106,7 @@ BP_DetectCenters <- function(bone, analysis=1, show.plot=TRUE, method="Accurate"
   bone <- RM_delete(x=bone, RMname = analysis, valuename="cut.angle")
   bone <- RM_delete(x=bone, RMname = analysis, valuename="compactness.synthesis")
   bone <- RM_delete(x=bone, RMname = analysis, valuename="optim")
+  bone <- RM_delete(x=bone, RMname = analysis, valuename="optimPeriodic")
   # bone <- RM_delete(x=bone, RMname = analysis, valuename="contour")
   bone <- RM_delete(x=bone, RMname = analysis, valuename="used.centers")
   bone <- RM_delete(x=bone, RMname = analysis, valuename="optimRadial")
@@ -109,6 +129,6 @@ BP_DetectCenters <- function(bone, analysis=1, show.plot=TRUE, method="Accurate"
                                                                          GC_ontogenic.y=GC_ontoCenter.y))
   bone <- RM_add(x=bone, RMname = analysis, valuename="method", value=method)
   
-  if (show.plot) plot(bone, message="Do not forget to check thresholding")
+  if (show.plot) plot(bone, message="Do not forget to check thresholding", analysis = analysis)
   return(bone)
 }

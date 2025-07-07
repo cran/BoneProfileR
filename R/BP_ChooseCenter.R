@@ -41,7 +41,7 @@ BP_ChooseCenter <- function(bone, analysis=1) {
   on.exit(par(oldpar))            # code line i + 1
   
   plot(bone, 
-       message="Please choose the center of the section", restorePar=FALSE)
+       message="Please choose the center of the section", restorePar=FALSE, analysis = analysis)
   pos <- getFromNamespace(".BP_DetectClick", ns="BoneProfileR")(bone)
   
   GC_cortex.x <- NA
@@ -59,6 +59,7 @@ BP_ChooseCenter <- function(bone, analysis=1) {
   bone <- RM_delete(x=bone, RMname = analysis, valuename="cut.angle")
   bone <- RM_delete(x=bone, RMname = analysis, valuename="compactness.synthesis")
   bone <- RM_delete(x=bone, RMname = analysis, valuename="optim")
+  bone <- RM_delete(x=bone, RMname = analysis, valuename="optimPeriodic")
   bone <- RM_delete(x=bone, RMname = analysis, valuename="used.centers")
   bone <- RM_delete(x=bone, RMname = analysis, valuename="optimRadial")
   bone <- RM_delete(x=bone, RMname = analysis, valuename="contour")
@@ -74,7 +75,7 @@ BP_ChooseCenter <- function(bone, analysis=1) {
   
   bone <- RM_add(x=bone, RMname = analysis, valuename="used.centers", value=c(center.x=unname(pos["x"]), center.y=unname(pos["y"])))
   
-  plot(bone, message="Do not forget to check thresholding")
+  plot(bone, message="Do not forget to check thresholding", analysis = analysis)
   return(bone)
 }
 

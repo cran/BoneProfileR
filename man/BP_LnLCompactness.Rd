@@ -11,7 +11,8 @@ BP_LnLCompactness(
   data_nm = NULL,
   distance.center = NULL,
   fixed.parameters = NULL,
-  analysis = 1
+  analysis = 1,
+  sign = -1
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ BP_LnLCompactness(
 \item{fixed.parameters}{Fixed parameters of the model}
 
 \item{analysis}{Name or rank of analysis}
+
+\item{sign}{The likelihood if multiplied by sign (-1 or +1) to return -Ln L or Ln L}
 }
 \value{
 The -Ln L
@@ -63,7 +66,9 @@ Other BoneProfileR:
 \code{\link{BP_DuplicateAnalysis}()},
 \code{\link{BP_EstimateCompactness}()},
 \code{\link{BP_FitBayesianCompactness}()},
+\code{\link{BP_FitBayesianPeriodicCompactness}()},
 \code{\link{BP_FitMLCompactness}()},
+\code{\link{BP_FitMLPeriodicCompactness}()},
 \code{\link{BP_FitMLRadialCompactness}()},
 \code{\link{BP_GetFittedParameters}()},
 \code{\link{BP_ListAnalyses}()},

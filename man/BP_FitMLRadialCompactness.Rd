@@ -11,7 +11,8 @@ BP_FitMLRadialCompactness(
   fixed.parameters = NULL,
   analysis = 1,
   silent = FALSE,
-  twosteps = TRUE
+  twosteps = TRUE,
+  progressbar = FALSE
 )
 }
 \arguments{
@@ -28,30 +29,34 @@ BP_FitMLRadialCompactness(
 \item{silent}{Should the function displays some information?}
 
 \item{twosteps}{Should a 2-steps analysis be performed?}
+
+\item{progressbar}{Should a progress bar be shown?}
 }
 \value{
 The -Ln L
 }
 \description{
 Estimation of the compactness of a bone section using radial model.\cr
-If the fitted.parameters and fixed.parameters are NULL and the analysis includes a 
-BP_FitMLCompactness() result, the values of this result is used as a reference for 
+If the fitted.parameters and fixed.parameters are NULL and the analysis includes a
+BP_FitMLCompactness() result, the values of this result is used as a reference for
 fitted.parameters and fixed.parameters.\cr
 If no BP_FitMLCompactness() result is available, it will use:\cr
 fitted.parameters=c(P=0.5, S=0.05, Min=-2, Max=5); fixed.parameters=c(K1=1, K2=1).\cr
-The reference for radial estimation of compactness is the trigonometric circle for rotation.angle=0 in 
+The reference for radial estimation of compactness is the trigonometric circle for rotation.angle=0 in
 BP_EstimateCompactness():\cr
-- The top of the section is located at -pi/2.\cr
-- The left of the section is located at -pi and +pi.\cr
-- The bottom of the section is located at pi/2.\cr
-- The right of the section is 0.\cr
+\itemize{
+\item The top of the section is located at -pi/2.\cr
+\item The left of the section is located at -pi and +pi.\cr
+\item The bottom of the section is located at pi/2.\cr
+\item The right of the section is 0.\cr
 If rotation.angle is different from 0, the value of rotation.angle is added to the angle modulo 2.pi.\cr
-The two-steps analysis performs first a quasi-Newton method, then a Bayesian MCMC and finally again a quasi-Newton method. 
+The two-steps analysis performs first a quasi-Newton method, then a Bayesian MCMC and finally again a quasi-Newton method.
 It generally ensures that global minimum is found. On the other hand, it doubles the time to complete for each angle.\cr
 To control the parallel computing, use: \cr
 options(mc.cores = [put here the number of cores you want use])\cr
-options(forking = FALSE)\cr
+options(forking = FALSE) or options(forking = TRUE)\cr
 The maximum number of cores is obtained by: parallel::detectCores()\cr
+}
 }
 \details{
 BP_FitMLRadialCompactness estimates likelihood of model of a bone section
@@ -74,7 +79,8 @@ path_Hedgehog <- system.file("extdata", "Erinaceus_europaeus_fem_2-1_small.png",
  plot(bone)
  plot(bone, type="observations")
  plot(bone, type="observations+model", analysis=1)
- fittedpar <- BP_GetFittedParameters(bone, analysis="logistic")
+ fittedpar <- BP_GetFittedParameters(bone, analysis="logistic", 
+                                     ML=TRUE, return.all = FALSE)[, "mean"]
  bone <- BP_DuplicateAnalysis(bone, from="logistic", to="flexit")
  bone <- BP_FitMLCompactness(bone, 
                 fitted.parameters=c(fittedpar, K1=1.01, K2=1.01), 
@@ -85,8 +91,10 @@ path_Hedgehog <- system.file("extdata", "Erinaceus_europaeus_fem_2-1_small.png",
  bone <- BP_FitMLCompactness(bone, 
                 fitted.parameters=fittedpar, 
                 fixed.parameters=NULL, analysis="flexit")
- compare_AIC(Logistic=BP_GetFittedParameters(bone, analysis="logistic", alloptim=TRUE), 
-             Flexit=BP_GetFittedParameters(bone, analysis="flexit", alloptim=TRUE))
+ compare_AIC(Logistic=BP_GetFittedParameters(bone, analysis="logistic", 
+                                             ML=TRUE, return.all = TRUE), 
+             Flexit=BP_GetFittedParameters(bone, analysis="flexit", 
+                                           ML=TRUE, return.all=TRUE))
  out4p <- plot(bone, type="observations+model", analysis="logistic")
  out6p <- plot(bone, type="observations+model", analysis="flexit")
  # The twosteps fit is more acurate but is around 100 times slower
@@ -96,16 +104,27 @@ path_Hedgehog <- system.file("extdata", "Erinaceus_europaeus_fem_2-1_small.png",
  plot(bone, type="model", analysis="logistic", angle=0)
  plot(bone, type="observations+model", angle=0)
  plot(bone, type="observations+model", angle=pi)
- plot(bone, type="radial", radial.variable=c("P", "S"), analysis="logistic")
- plot(bone, type="radial", radial.variable=c("P", "S", "Min", "Max"), analysis="logistic")
- plot(bone, type="radial", radial.variable=c("TRC"), analysis="logistic")
+ plot(bone, type="radial", parameter.name=c("P"), analysis="logistic")
+ plot(bone, type="radial", parameter.name=c("P", "S"), analysis="logistic")
+ plot(bone, type="radial", parameter.name=c("P", "S", "Min", "Max"), analysis="logistic")
+ plot(bone, type="radial", parameter.name=c("TRC"), analysis="logistic")
+ 
+ # The observed compactness
+ plot(bone, type="radial", parameter.name=c("observed.compactness"), analysis="logistic")
+ # The observed compactness weighted by the pixel number
+ plot(bone, type="radial", parameter.name="linearized.observed.compactness", analysis="logistic")
+ # The integration of the compactness model
+ plot(bone, type="radial", parameter.name="modeled.compactness", analysis="logistic")
+ # The integration of the compactness model weighted by the pixel number
+ plot(bone, type="radial", parameter.name="linearized.modeled.compactness", analysis="logistic")
+ 
  # Test using the change of orientation using default.angle from BP_EstimateCompactness():
  bone <- BP_DuplicateAnalysis(bone, from="logistic", to="logistic_rotation_pi")
  # With a pi rotation, the top moves to the bottom and the left moves to the right
  bone <- BP_EstimateCompactness(bone, rotation.angle=pi, analysis="logistic_rotation_pi")
  bone <- BP_FitMLRadialCompactness(bone, analysis="logistic_rotation_pi")
- plot(bone, type="radial", radial.variable=c("P", "S"), analysis="logistic")
- plot(bone, type="radial", radial.variable=c("P", "S"), analysis="logistic_rotation_pi")
+ plot(bone, type="radial", parameter.name=c("P", "S"), analysis="logistic")
+ plot(bone, type="radial", parameter.name=c("P", "S"), analysis="logistic_rotation_pi")
  BP_Report(bone=bone, 
            analysis=1,
            docx=NULL, 
@@ -127,7 +146,9 @@ Other BoneProfileR:
 \code{\link{BP_DuplicateAnalysis}()},
 \code{\link{BP_EstimateCompactness}()},
 \code{\link{BP_FitBayesianCompactness}()},
+\code{\link{BP_FitBayesianPeriodicCompactness}()},
 \code{\link{BP_FitMLCompactness}()},
+\code{\link{BP_FitMLPeriodicCompactness}()},
 \code{\link{BP_GetFittedParameters}()},
 \code{\link{BP_ListAnalyses}()},
 \code{\link{BP_LnLCompactness}()},

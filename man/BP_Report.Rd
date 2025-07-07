@@ -38,6 +38,11 @@ Nothing
 }
 \description{
 Generate a docx, xlsx, or pdf report.\cr
+In the xlsx report, the observed compactness is simply the ratio of the number
+of mineralized pixels to the number of total pixels.\cr
+The corrected modelled compactness is the compactness if the bone had the
+same number of pixels in the centre as on the periphery So it's a compactness
+that corrects for the shape of the bone.
 }
 \details{
 BP_Report save a pdf report for the analyzed bone
@@ -54,19 +59,30 @@ path_Hedgehog <- system.file("extdata", "Erinaceus_europaeus_fem_2-1_small.png",
  bone <- BP_DetectCenters(bone=bone, analysis="logistic")
  bone <- BP_EstimateCompactness(bone, analysis="logistic")
  bone <- BP_FitMLCompactness(bone, analysis="logistic")
- fittedpar <- BP_GetFittedParameters(bone, analysis="logistic")
+ fittedpar <- BP_GetFittedParameters(bone, analysis="logistic", 
+                                     ML=TRUE, return.all = FALSE)[, "mean"]
  bone <- BP_DuplicateAnalysis(bone, from="logistic", to="flexit")
  bone <- BP_FitMLCompactness(bone, 
                 fitted.parameters=c(fittedpar, K1=1, K2=1), 
                 fixed.parameters=NULL, analysis="flexit")
- compare_AIC(Logistic=BP_GetFittedParameters(bone, analysis="logistic", alloptim=TRUE), 
-             Flexit=BP_GetFittedParameters(bone, analysis="flexit", alloptim=TRUE))
+ compare_AIC(Logistic=BP_GetFittedParameters(bone, analysis="logistic", 
+                                             ML=TRUE, return.all = TRUE), 
+             Flexit=BP_GetFittedParameters(bone, analysis="flexit", 
+                                           ML=TRUE, return.all = TRUE))
  bone <- BP_FitMLRadialCompactness(bone, analysis="logistic")
  # Test using the change of orientation using default.angle from BP_EstimateCompactness():
  bone <- BP_DuplicateAnalysis(bone, from="logistic", to="logistic_rotation_pi")
  # With a pi rotation, the top moves to the bottom and the left moves to the right
  bone <- BP_EstimateCompactness(bone, rotation.angle=pi, analysis="logistic_rotation_pi")
  bone <- BP_FitMLRadialCompactness(bone, analysis="logistic_rotation_pi")
+ # Periodic analysis
+ par <- BP_GetFittedParameters(bone, analysis="logistic", ML=TRUE, return.all = FALSE)[, "mean"]
+ options(mc.cores=parallel::detectCores())
+ bone <- BP_FitMLPeriodicCompactness(bone, analysis="logistic", control.optim=list(trace=2), 
+                                     fitted.parameters=c(par, PSin=0.001, PCos=0.001, 
+                                     SSin=0.001, SCos=0.001, MinSin=0.001, MinCos=0.001, 
+                                     MaxSin=0.001, MaxCos=0.001), replicates.CI=2000)
+                                     
  BP_Report(bone=bone, 
            analysis=1,
            docx=NULL, 
@@ -104,7 +120,9 @@ Other BoneProfileR:
 \code{\link{BP_DuplicateAnalysis}()},
 \code{\link{BP_EstimateCompactness}()},
 \code{\link{BP_FitBayesianCompactness}()},
+\code{\link{BP_FitBayesianPeriodicCompactness}()},
 \code{\link{BP_FitMLCompactness}()},
+\code{\link{BP_FitMLPeriodicCompactness}()},
 \code{\link{BP_FitMLRadialCompactness}()},
 \code{\link{BP_GetFittedParameters}()},
 \code{\link{BP_ListAnalyses}()},

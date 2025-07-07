@@ -4,7 +4,7 @@
 
 library(shiny)
 package.BoneProfileR <- require('BoneProfileR')
-version <- "3.1 build 802"
+version <- "4.0 build 1089"
 
 # 
 # mycss <- "
@@ -46,21 +46,21 @@ splitLayout <- function (..., cellWidths = NULL, cellArgs = list())
 # Define UI for application that draws a histogram
 fluidPage(
   titlePanel(h1("Bone Profile",
-             img(src="Rlogo.png", height=40, width=40), align = "center"), 
+                img(src="Rlogo.png", height=40, width=40), align = "center"), 
              windowTitle = "Bone ProfileR"), # h1("Bone Profile", align = "center"), HTML('<h1><center>Bone Profile<img scr="Rlogo.png"></center></h1>')), # h1("Bone Profile", align = "center")), 
-  p(HTML("<b><a href=\"https://max2.ese.u-psud.fr/epc/conservation/index.html\">Marc Girondot</a></b> - Laboratoire Ecologie, Systématique, Evolution"), align = "center"),
+  p(HTML("<b><a href=\"http://hebergement.universite-paris-saclay.fr/marcgirondot/\">Marc Girondot</a></b> - Laboratoire Ecologie, Société, Evolution"), align = "center"),
   p(HTML("Université Paris-Saclay, CNRS, AgroParisTech, France."), align = "center"), 
   
   wellPanel(
- 
-  p(HTML("<strong>BoneProfileR is a scientific method and a software used 
+    
+    p(HTML("<strong>BoneProfileR is a scientific method and a software used 
   to model bone section for paleontological and ecological studies.</strong>"), align = "left"),
-  p(paste0("This web server version v. ",version, " is a simplified version of the complete tools available as an R package.")), 
-  
-  p(HTML("Open a bone section image, choose the options and 
+    p(paste0("This web server version v. ",version, " is a simplified version of the complete tools available as an R package.")), 
+    
+    p(HTML("Open a bone section image, choose the options and 
          click 'Run the analysis' button."), align = "left")
   ), 
-
+  
   # Show a plot of the generated distribution
   wellPanel(
     splitLayout(
@@ -69,6 +69,7 @@ fluidPage(
       checkboxInput(inputId="ijtiff", label = "Use IJTiff package to import image?", value = FALSE)
       , cellWidths=c("70%", "30%")
     ), 
+    p("Only files with .png, .jpg and .tif extensions can be chosen. Rename your file if necessary.."), 
     splitLayout(
       selectInput("center", label="Choose the center to be used "
                   , choices=list("Ontogenic center"="ontogenic", 
@@ -85,33 +86,52 @@ fluidPage(
       , textInput(inputId="distances", label="Number of ribbons from center", value="100")
       , cellWidths=c("50%", "50%")
     ), 
-    splitLayout(
-      checkboxInput(inputId="twosteps", label = "Use a two-steps fit? The time requires for a two-steps fit is around 5 minutes.", value = TRUE)
-      , cellWidths=c("100%")
-    ), 
     
-    p(HTML("<b>Choose the variables to plot for radial analysis</b>"), align = "left"), 
-    splitLayout(
-      checkboxInput(inputId="RadialVarP", label="P", value=TRUE)
-      , checkboxInput(inputId="RadialVarS", label="S", value=FALSE)
-      , checkboxInput(inputId="RadialVarMin", label="Min", value=FALSE)
-      , checkboxInput(inputId="RadialVarMax", label="Max", value=FALSE)
-      , checkboxInput(inputId="RadialVarK1", label="K1", value=FALSE)
-      , checkboxInput(inputId="RadialVarK2", label="K2", value=FALSE)
-      , checkboxInput(inputId="RadialVarTRC", label="Transitional Range of Compacity", value=TRUE)
-      , cellWidths=c("10%", "10%", "10%", "10%", "10%", "10%", "40%")
-    ), 
-    
-    p("The Transitional Range of Compacity is the range of distances from the center where the compacity is between 2.5% to 97.5% of the compacity between Min and Max.")
+      checkboxInput(inputId="twosteps", label = "Use a two-steps fit?", value = FALSE)
+      , cellWidths=c("100%"), 
+      p("The time requires for a two-steps fit is around 5 minutes.")
     , 
+    wellPanel(
+      radioButtons("Method", "Method to detect the section information", 
+                   list("From center"=1, "From edges"=2, "Convex from center"=3, "Convex from edges"=4), selected=1, inline = TRUE),
+    ), 
+    wellPanel(
+      p(HTML("<b>Choose the variables to plot for radial analysis</b>"), align = "left"), 
+      splitLayout(
+        checkboxInput(inputId="RadialVarP", label="P", value=TRUE)
+        , checkboxInput(inputId="RadialVarS", label="S", value=FALSE)
+        , checkboxInput(inputId="RadialVarMin", label="Min", value=FALSE)
+        , checkboxInput(inputId="RadialVarMax", label="Max", value=FALSE)
+        , checkboxInput(inputId="RadialVarK1", label="K1", value=FALSE)
+        , checkboxInput(inputId="RadialVarK2", label="K2", value=FALSE)
+        , cellWidths=c("15%", "15%", "15%", "15%", "15%", "20%")
+        ),
+      p(HTML("<b>Show the compactness:</b>")), 
+      splitLayout(
+        checkboxInput(inputId="RadialOC", label="Observed ", value=TRUE)
+        , checkboxInput(inputId="RadialLOC", label="Linearized observed", value=FALSE)
+        , checkboxInput(inputId="RadialMC", label="Modeled", value=TRUE)
+        , checkboxInput(inputId="RadialLMC", label="Linearized modeled", value=FALSE)
+        , checkboxInput(inputId="RadialVarTRC", label="Transitional Range of Compacity", value=FALSE)
+        , cellWidths=c("20%", "20%", "20%", "20%", "20%")
+      ), 
+      p("The Transitional Range of Compacity is the range of distances from the center where the compacity is between 2.5% to 97.5% of the compacity between Min and Max.")
+    ), 
+    wellPanel(
+      p(HTML("<b>Periodic analysis</b>"), align = "left"), 
+      
+        checkboxInput(inputId="Periodic", label="Do a periodic analysis?", value=FALSE), 
+        p("The time requires for periodic analysis is around 5 minutes.")
+      
+    ), 
     actionButton(inputId="goButton", label="Run the analysis", width="30%", 
                  icon("paper-plane"), 
                  style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
-    p(HTML("Be patient, to be completed, the analysis requires between 40 seconds or more than 5 minutes if you use 2-steps analysis."), align = "left")
+    p(""), p(HTML("Be patient, to be completed, the analysis requires between 40 seconds or more than 5 minutes if you use 2-steps or periodic analysis. It depends also on the size of the section in pixels."), align = "left")
   ), 
   p(""), 
   wellPanel(
-
+    
     
     htmlOutput(outputId="TitleOut1"), 
     plotOutput("Plot"), 
@@ -132,8 +152,10 @@ fluidPage(
     tableOutput(outputId="RadialOut1"), 
     tableOutput(outputId="RadialOut2"), 
     plotOutput("PlotModelRadial"),
+    plotOutput("PlotModelPeriodic"),
     downloadButton("ExcelButton", "Export formated data for Excel"), 
+    p("You can have a security warning because I do not use https site. There is no risk to download the results.")
   ), 
   HTML("<small><i><font color='#006699'>The Virtual Data initiative, run by LABEX P2IO and supported by Université Paris-Saclay, is thanked for providing computing resources on its cloud infrastructure.</font></i></small>")
-
+  
 )

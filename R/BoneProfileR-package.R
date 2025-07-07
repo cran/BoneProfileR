@@ -3,23 +3,24 @@
 #' \tabular{ll}{
 #'  Package: \tab BoneProfileR\cr
 #'  Type: \tab Package\cr
-#'  Version: \tab 3.1 build 802\cr
-#'  Date: \tab 2024-08-24\cr
+#'  Version: \tab 4.0 build 1089\cr
+#'  Date: \tab 2025-07-07\cr
 #'  License: \tab GPL (>= 2)\cr
 #'  LazyLoad: \tab yes\cr
 #'  }
 #' @title A Model for Bone Compactness.
 #' @author Marc Girondot \email{marc.girondot@@gmail.com}
-#' @docType package
 #' @name BoneProfileR-package
 #' @description A Model for Bone Compactness.\cr
 #' The lastest version of this package can always been installed using:\cr
-#' install.packages(c("imager", "tiff", "ijtiff", "HelpersMG", "knitr", "rmarkdown", "openxlsx", "shiny"))\cr
-#' install.packages("https://hebergement.universite-paris-saclay.fr/marcgirondot/CRAN/HelpersMG.tar.gz", repos=NULL, type="source")\cr
-#' install.packages("https://hebergement.universite-paris-saclay.fr/marcgirondot/CRAN/BoneProfileR.tar.gz", repos=NULL, type="source")\cr
+#' install.packages(c("imager", "tiff", "ijtiff", "HelpersMG", "knitr", "rmarkdown", "openxlsx", "shiny", "fields"))\cr
+#' install.packages("http://marc.girondot.free.fr/CRAN/HelpersMG.tar.gz", repos=NULL, type="source")\cr
+#' install.packages("http://marc.girondot.free.fr/CRAN/BoneProfileR.tar.gz", repos=NULL, type="source")\cr
 #' BoneProfileR uses a new results management software that is developed as part of the HelpersMG 
 #' package. Using this results management system (RM), all the results are stored as part of the 
 #' analyzed image.\cr
+#' Online simplified version can be found at:\cr
+#' http://marc.girondot.free.fr/BoneProfilerR.html\cr
 #' This results management software has been developed to help users to maintain the results 
 #' associated with the methodology used to obtain it. It is part of the large movement in 
 #' science of replicative research.\cr
@@ -74,13 +75,13 @@
 #'  bone <- BP_FitMLCompactness(bone, analysis="logistic")
 #'  plot(bone, type="model", analysis=1)
 #'  plot(bone, type="observations+model", analysis=1)
-#'  fittedpar <- BP_GetFittedParameters(bone, analysis="logistic")
+#'  fittedpar <- BP_GetFittedParameters(bone, analysis="logistic", type="global")[, "mean"]
 #'  bone <- BP_DuplicateAnalysis(bone, from="logistic", to="flexit")
 #'  bone <- BP_FitMLCompactness(bone, 
 #'                 fitted.parameters=c(fittedpar, K1=1, K2=1), 
 #'                 fixed.parameters=NULL, analysis="flexit")
-#'  compare_AIC(Logistic=BP_GetFittedParameters(bone, analysis="logistic", alloptim=TRUE), 
-#'              Flexit=BP_GetFittedParameters(bone, analysis="flexit", alloptim=TRUE))
+#'  compare_AIC(Logistic=BP_GetFittedParameters(bone, analysis="logistic", ML=TRUE, return.all=TRUE), 
+#'              Flexit=BP_GetFittedParameters(bone, analysis="flexit", ML=TRUE, return.all=TRUE))
 #' # pdf(file = "Figure 2.pdf", width = 8, height = 10, pointsize = 12)
 #' layout(1:2)
 #' plot(bone, type="observations+model", analysis="logistic", restorePar=FALSE, mar=c(4, 4, 2, 5))
@@ -126,18 +127,18 @@
 #'  # dev.off()
 #'  
 #'  bone <- BP_FitMLRadialCompactness(bone, analysis = "flexit")
-#'  plot(bone, type="radial", radial.variable=c("P", "S"), analysis = "flexit")
-#'  plot(bone, type="radial", radial.variable=c("P", "S", "Min", "Max"), analysis = "flexit")
+#'  plot(bone, type="radial", parameter.name=c("P", "S"), analysis = "flexit")
+#'  plot(bone, type="radial", parameter.name=c("P", "S", "Min", "Max"), analysis = "flexit")
 #'  out <- RM_get(x=bone, RMname="flexit", valuename = "optimRadial")$synthesis
 #'  mean(out[, "P"]); sd(out[, "P"])
 #'  range(out[, "S"])
 #'  quantile(out[, "S"])
 #'  # pdf(file = "Figure 4.pdf", width=7, height = 9, pointsize = 12)
 #'  layout(1:2)
-#'  plot(bone, type="radial", radial.variable="P", analysis = "flexit", restorePar=FALSE)
+#'  plot(bone, type="radial", parameter.name="P", analysis = "flexit", restorePar=FALSE)
 #'  text(x=ScalePreviousPlot(x=0.95, y=0.95)$x, 
 #'       y=ScalePreviousPlot(x=0.95, y=0.95)$y, labels="A", cex=3)
-#'  plot(bone, type="radial", radial.variable="S", analysis = "flexit", restorePar=FALSE)
+#'  plot(bone, type="radial", parameter.name="S", analysis = "flexit", restorePar=FALSE)
 #'  text(x=ScalePreviousPlot(x=0.95, y=0.95)$x, 
 #'       y=ScalePreviousPlot(x=0.95, y=0.95)$y, labels="B", cex=3)
 #'  # dev.off()

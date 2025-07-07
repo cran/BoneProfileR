@@ -8,12 +8,15 @@ BP_EstimateCompactness(
   bone,
   center = "ontogenetic",
   partial = FALSE,
+  NbRemoveEdgePartial = 1,
   cut.angle = 60,
   cut.distance = 100,
+  NbRemoveDistanceExterior = 1,
   rotation.angle = 0,
   analysis = 1,
-  method = "Accurate",
-  show.plot = TRUE
+  method = "Fast",
+  show.plot = TRUE,
+  cut.max = 360
 )
 }
 \arguments{
@@ -23,9 +26,13 @@ BP_EstimateCompactness(
 
 \item{partial}{Is the section partial?}
 
+\item{NbRemoveEdgePartial}{How many radial section to remove at the edge of partial section?}
+
 \item{cut.angle}{Number of angles}
 
 \item{cut.distance}{Number of distances}
+
+\item{NbRemoveDistanceExterior}{How many exterior sectors should be removed from analysis?}
 
 \item{rotation.angle}{The angle of rotation for analysis}
 
@@ -34,24 +41,28 @@ BP_EstimateCompactness(
 \item{method}{Can be Fast, Accurate, FastConvex, or AccurateConvex}
 
 \item{show.plot}{should plot is shown ?}
+
+\item{cut.max}{The number of slices for the internal estimation}
 }
 \value{
 The orignial bone object with a new attribute for compactness
 }
 \description{
 Estimation of the compactness of a bone section.\cr
-The reference for radial estimation of compactness is the trigonometric circle for rotation.angle=0 in 
+The reference for radial estimation of compactness is the trigonometric circle for rotation.angle=0 in
 BP_EstimateCompactness():\cr
-- The top of the section is located at -pi/2.\cr
-- The left of the section is located at -pi and +pi.\cr
-- The bottom of the section is located at pi/2.\cr
-- The right of the section is 0.\cr
+\itemize{
+\item The top of the section is located at -pi/2.\cr
+\item The left of the section is located at -pi and +pi.\cr
+\item The bottom of the section is located at pi/2.\cr
+\item The right of the section is 0.\cr
 If rotation.angle is different from 0, the value of rotation.angle is added to the angle modulo 2.pi.\cr
 The method Fast works well with the convex bone section while if the section is concave, Accurate is slower but works well in all circonstances.\cr
 Fast method is maintained here only for compatibility with versions <3.1 of BoneProfileR.\cr
 If the section is concave, the methods FastConvex and AccurateConvex return a minimum convex section.\cr
 If the center has been automatically detected, the method parameter is ignored because it has already
 been used with the function BP_DetectCenters().
+}
 }
 \details{
 BP_EstimateCompactness estimates the compactness of a bone section
@@ -73,6 +84,7 @@ path_Hedgehog <- system.file("extdata", "Erinaceus_europaeus_fem_2-1_small.png",
  plot(bone, type="mineralized", show.grid=FALSE)
  plot(bone, type="unmineralized", show.grid=FALSE)
  plot(bone, type="section", show.grid=FALSE)
+ plot(bone, type="original", show.grid=TRUE)
 }
 }
 \seealso{
@@ -86,7 +98,9 @@ Other BoneProfileR:
 \code{\link{BP_DetectForeground}()},
 \code{\link{BP_DuplicateAnalysis}()},
 \code{\link{BP_FitBayesianCompactness}()},
+\code{\link{BP_FitBayesianPeriodicCompactness}()},
 \code{\link{BP_FitMLCompactness}()},
+\code{\link{BP_FitMLPeriodicCompactness}()},
 \code{\link{BP_FitMLRadialCompactness}()},
 \code{\link{BP_GetFittedParameters}()},
 \code{\link{BP_ListAnalyses}()},

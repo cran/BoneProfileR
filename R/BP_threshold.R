@@ -26,5 +26,5 @@
                         (bone[, , 1, 2]-fg_green)^2+
                         (bone[, , 1, 3]-fg_blue)^2)
   
-  return(Distance_bg>Distance_fg)
+  return(Distance_bg > Distance_fg)
 }

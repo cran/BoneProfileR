@@ -23,7 +23,7 @@ BP_ChooseForeground <- function(bone, analysis=1) {
   on.exit(par(oldpar))            # code line i + 1
   
   plot(bone, 
-              message="Please choose the foreground color", restorePar=FALSE)
+              message="Please choose the foreground color", restorePar=FALSE, analysis = analysis)
   pos <- getFromNamespace(".BP_DetectClick", ns="BoneProfileR")(bone)
   fg <- bone[pos["x"], pos["y"], 1, 1:3]
   fg <- rgb(red=fg[1], green=fg[2], blue=fg[3])
@@ -39,11 +39,12 @@ BP_ChooseForeground <- function(bone, analysis=1) {
   bone <- RM_delete(x=bone, RMname = analysis, valuename="cut.angle")
   bone <- RM_delete(x=bone, RMname = analysis, valuename="compactness.synthesis")
   bone <- RM_delete(x=bone, RMname = analysis, valuename="optim")
+  bone <- RM_delete(x=bone, RMname = analysis, valuename="optimPeriodic")
   bone <- RM_delete(x=bone, RMname = analysis, valuename="used.centers")
   bone <- RM_delete(x=bone, RMname = analysis, valuename="optimRadial")
   
   
-  plot(bone, message="Do not forget to check thresholding")
+  plot(bone, message="Do not forget to check thresholding", analysis = analysis)
   return(bone)
 }
 

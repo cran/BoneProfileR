@@ -9,9 +9,10 @@ BP_FitBayesianCompactness(
   priors = NULL,
   n.iter = 10000,
   n.chains = 1,
-  n.adapt = 100,
-  thin = 1,
+  n.adapt = 5000,
+  thin = 10,
   analysis = 1,
+  adaptive = TRUE,
   silent = TRUE
 )
 }
@@ -30,13 +31,16 @@ BP_FitBayesianCompactness(
 
 \item{analysis}{Name or rank of analysis}
 
+\item{adaptive}{Should SDProp be changed during iterations}
+
 \item{silent}{Should some information must me shown ?}
 }
 \value{
 The -Ln L
 }
 \description{
-Estimation of Bayesian model of a bone section.
+Estimation of Bayesian model of a bone section./r
+Get information using ?MHalgoGen.
 }
 \details{
 BP_FitBayesianCompactness estimates Bayesian model of a bone section
@@ -56,13 +60,13 @@ BP_FitBayesianCompactness estimates Bayesian model of a bone section
  plot(bone)
  plot(bone, type="observations")
  plot(bone, type="observations+model", analysis=1)
- fittedpar <- BP_GetFittedParameters(bone, analysis="logistic")
+ fittedpar <- BP_GetFittedParameters(bone, analysis="logistic", ML=TRUE, return.all=FALSE)[, "mean"]
  bone <- BP_DuplicateAnalysis(bone, from="logistic", to="flexit")
  bone <- BP_FitMLCompactness(bone, 
                 fitted.parameters=c(fittedpar, K1=1, K2=1), 
                 fixed.parameters=NULL, analysis="flexit")
- compare_AIC(Logistic=BP_GetFittedParameters(bone, analysis="logistic", alloptim=TRUE), 
-             Flexit=BP_GetFittedParameters(bone, analysis="flexit", alloptim=TRUE))
+ compare_AIC(Logistic=BP_GetFittedParameters(bone, analysis="logistic", ML=TRUE, return.all=TRUE), 
+             Flexit=BP_GetFittedParameters(bone, analysis="flexit", ML=TRUE, return.all=TRUE))
  out4p <- plot(bone, type="observations+model", analysis="logistic")
  out6p <- plot(bone, type="observations+model", analysis="flexit")
  bone <- BP_FitBayesianCompactness(bone, analysis="logistic")
@@ -82,7 +86,9 @@ Other BoneProfileR:
 \code{\link{BP_DetectForeground}()},
 \code{\link{BP_DuplicateAnalysis}()},
 \code{\link{BP_EstimateCompactness}()},
+\code{\link{BP_FitBayesianPeriodicCompactness}()},
 \code{\link{BP_FitMLCompactness}()},
+\code{\link{BP_FitMLPeriodicCompactness}()},
 \code{\link{BP_FitMLRadialCompactness}()},
 \code{\link{BP_GetFittedParameters}()},
 \code{\link{BP_ListAnalyses}()},

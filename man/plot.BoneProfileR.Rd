@@ -9,17 +9,18 @@
   message = NULL,
   type = "original",
   angle = NULL,
+  show.all.angles = FALSE,
   show.centers = TRUE,
   show.colors = TRUE,
   show.grid = TRUE,
   analysis = 1,
-  parameter.mcmc = "S",
+  parameter.name = "S",
   options.mcmc = list(),
   restorePar = TRUE,
   mar = NULL,
   angle.3D = 55,
   CI = "ML",
-  radial.variable = "S",
+  replicates.CI = 1000,
   show.legend = TRUE,
   ...
 )
@@ -33,6 +34,8 @@
 
 \item{angle}{Which angle model to show}
 
+\item{show.all.angles}{For periodic type and partial section, should all angles been shown?}
+
 \item{show.centers}{Should the centers be shown?}
 
 \item{show.colors}{Should the background and foreground colors be shown?}
@@ -41,7 +44,7 @@
 
 \item{analysis}{Name or number of analysis to be plotted}
 
-\item{parameter.mcmc}{The posterior parameter to show for type = "mcmc"}
+\item{parameter.name}{The parameter to plot}
 
 \item{options.mcmc}{The option to plot type mcmc output}
 
@@ -53,11 +56,11 @@
 
 \item{CI}{Which confidence interval should be plotted: MCMC or ML}
 
-\item{radial.variable}{Name of the radial variable to plot}
+\item{replicates.CI}{How many replicates to estimate CI?}
 
 \item{show.legend}{Should a legend be shown?}
 
-\item{...}{Not used}
+\item{...}{Default parameters for some functions}
 }
 \value{
 Nothing
@@ -65,15 +68,20 @@ Nothing
 \description{
 Display a bone section.\cr
 type value can be:\cr
-Image plot: `original`, `mineralized`, `unmineralized`, `section`\cr
-Original is the original image, mineralized is the mineral interpretation of the section, 
+Image plot: \code{original}, \code{mineralized}, \code{unmineralized}, \code{section}\cr
+Original is the original image, mineralized is the mineral interpretation of the section,
 unmineralized is the unmineralized interpretation of the section, section is the interpretation of the section.\cr
-`colors` shows the histograms of pixel information with foreground and background colors if they are defined.\cr
-`3Dcolors` show the pixels colors in 3D\cr
-Global analysis: `observations`, `model`, `observations+model`\cr
-Radial analysis: `radial`\cr
+\code{colors} shows the histograms of pixel information with foreground and background colors if they are defined.\cr
+\verb{3Dcolors} show the pixels colors in 3D\cr
+Global analysis: \code{observations}, \code{model}, \code{observations+model}\cr
+Radial analysis: \code{radial}\cr
+Periodic analysis: \code{periodic}\cr
 If angle is not null and a radial analysis exists, it will show the model for this angle.\cr
-`mcmc`: It will show the posterior distribution of parameter
+\code{mcmc}: It will show the posterior distribution of parameter.\cr
+For periodic analysis, you can see a particular parameter with parameter.name being
+P, S, Min, Max, K1, or K2 or the global median compactness using parameter.name="compactness".
+You can use col=rainbow(128) or hcl.colors(128) to see the region of transition. You can
+also plot the average compactness using parameter.name="averagemodel".\cr
 }
 \details{
 plot.BoneProfileR displays a bone section
@@ -92,11 +100,13 @@ library(BoneProfileR)
  plot(bone, type="colors")
  bone <- BP_DetectCenters(bone=bone, analysis="logistic")
  plot(bone, type="3Dcolors")
- bone <- BP_EstimateCompactness(bone, analysis="logistic", rotation.angle = 1)
+ bone <- BP_EstimateCompactness(bone, analysis="logistic")
  bone <- BP_FitMLCompactness(bone, analysis="logistic")
  plot(bone)
- # 
-path_Hedgehog <- system.file("extdata", "Erinaceus_europaeus_fem_2-1_small.png", 
+ ############################################
+ # Example with comparison between two models
+ ############################################
+ path_Hedgehog <- system.file("extdata", "Erinaceus_europaeus_fem_2-1_small.png", 
                              package = "BoneProfileR")
  bone <- BP_OpenImage(file=path_Hedgehog)
  bone <- BP_DetectBackground(bone=bone, analysis="logistic")
@@ -107,21 +117,77 @@ path_Hedgehog <- system.file("extdata", "Erinaceus_europaeus_fem_2-1_small.png",
  plot(bone)
  plot(bone, type="observations")
  plot(bone, type="observations+model", analysis=1)
- bone <- BP_DuplicateAnalysis(bone, from="logistic", to="flexit")
- fittedpar <- BP_GetFittedParameters(bone, analysis="logistic")
+ fittedpar <- BP_GetFittedParameters(bone, analysis="logistic", 
+                                     ML=TRUE, return.all = FALSE)[, "mean"]
  bone <- BP_DuplicateAnalysis(bone, from="logistic", to="flexit")
  bone <- BP_FitMLCompactness(bone, 
                 fitted.parameters=c(fittedpar, K1=1, K2=1), 
                 fixed.parameters=NULL, analysis="flexit")
- compare_AIC(Logistic=BP_GetFittedParameters(bone, analysis="logistic", alloptim=TRUE), 
-             Flexit=BP_GetFittedParameters(bone, analysis="flexit", alloptim=TRUE))
+ compare_AIC(Logistic=BP_GetFittedParameters(bone, analysis="logistic", 
+                                             ML=TRUE, return.all = TRUE), 
+             Flexit=BP_GetFittedParameters(bone, analysis="flexit", 
+                                           ML=TRUE, return.all = TRUE))
  out4p <- plot(bone, type="observations+model", analysis="logistic")
  out6p <- plot(bone, type="observations+model", analysis="flexit")
- bone <- BP_FitBayesianCompactness(bone, analysis="logistic")
+ 
+ ############################################
+ # Fit distribution using Bayesian model
+ ############################################
+ bone <- BP_FitBayesianCompactness(bone, analysis="logistic", n.adapt=100)
+ # Test the output - New in version 3.2
+ plot(bone, type="mcmc", options.mcmc = list(what="LnL"))
+ #########################################################################
+ # Clearly the distribution is not stationary; the adaptation was too short
+ ######################################################################### 
+ bone <- BP_FitBayesianCompactness(bone, analysis="logistic", n.adapt=10000)
+ # Now it is ok
+ plot(bone, type="mcmc", options.mcmc = list(what="LnL"))
+ #########################################################################
+ # New in version 3.2
+ #########################################################################
+ plot(bone, type="mcmc", options.mcmc = list(what="Posterior", 
+      xlim=c(0.025, 0.035), breaks=seq(from=0.025, to=0.035, by=0.001)), 
+      parameter.name = "S")
+ plot(bone, type="mcmc", options.mcmc = list(what="MarkovChain", 
+                                            ylim=c(0.02, 0.04)), 
+                                            parameter.name = "S")
+ #########################################################################
+ # Check the priors and the output
+ #########################################################################
+ mcmc <- RM_get(x=bone, RMname="logistic", valuename = "mcmc")
+ priors <- mcmc$parametersMCMC$parameters
+ parameters <- as.parameters(mcmc, index="median")
+ #########################################################################
+ # Now it is ok. It can be used
+ #########################################################################
  plot(bone, type="observations+model", CI="MCMC")
- bone <- BP_FitMLRadialCompactness(bone)
- plot(bone, type="radial", radial.variable=c("P", "S"))
- plot(bone, type="radial", radial.variable=c("P", "S", "Min", "Max"))
+ plot(bone, type="observations+model", CI="ML")
+ #########################################################################
+ 
+ #############################################
+ # Radial compactness
+ #############################################
+ bone <- BP_FitMLRadialCompactness(bone, progressbar=TRUE)
+ plot(bone, type="radial", parameter.name=c("P", "S"))
+ plot(bone, type="radial", parameter.name=c("P", "S", "Min", "Max"))
+ plot(bone, type="radial", parameter.name="observed.compactness")
+ plot(bone, type="radial", parameter.name="linearized.observed.compactness")
+ 
+ #############################################
+ # Periodic analysis
+ # This model can take 10 minutes to be fitted
+ # And still more if you use large replicates.CI value
+ #############################################
+ bone <- BP_FitMLPeriodicCompactness(bone, analysis="logistic", control.optim=list(trace=2), 
+                                     fitted.parameters=c(par, PSin=0.001, PCos=0.001, 
+                                     SSin=0.001, SCos=0.001, MinSin=0.001, MinCos=0.001, 
+                                     MaxSin=0.001, MaxCos=0.001), replicates.CI=2000)
+ plot(bone, type="periodic", parameter.name="compactness", col=rainbow(128))
+ plot(bone, type="periodic", parameter.name="compactness")
+ plot(bone, type="periodic", parameter.name="P", ylim=c(0, 1), 
+       col=rgb(red = 0.7, green = 0.7, blue = 0.7, alpha = 0.2))
+ plot(bone, type="periodic", parameter.name="averagemodel")
+ 
 }
 }
 \seealso{
@@ -136,7 +202,9 @@ Other BoneProfileR:
 \code{\link{BP_DuplicateAnalysis}()},
 \code{\link{BP_EstimateCompactness}()},
 \code{\link{BP_FitBayesianCompactness}()},
+\code{\link{BP_FitBayesianPeriodicCompactness}()},
 \code{\link{BP_FitMLCompactness}()},
+\code{\link{BP_FitMLPeriodicCompactness}()},
 \code{\link{BP_FitMLRadialCompactness}()},
 \code{\link{BP_GetFittedParameters}()},
 \code{\link{BP_ListAnalyses}()},

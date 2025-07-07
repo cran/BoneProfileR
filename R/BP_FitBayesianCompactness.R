@@ -9,8 +9,10 @@
 #' @param n.adapt Number of iteration to adapt
 #' @param thin Thin parameter for analysis
 #' @param analysis Name or rank of analysis
+#' @param adaptive Should SDProp be changed during iterations
 #' @param silent Should some information must me shown ?
-#' @description Estimation of Bayesian model of a bone section.
+#' @description Estimation of Bayesian model of a bone section./r
+#' Get information using ?MHalgoGen.
 #' @family BoneProfileR
 #' @examples
 #' \dontrun{
@@ -27,13 +29,13 @@
 #'  plot(bone)
 #'  plot(bone, type="observations")
 #'  plot(bone, type="observations+model", analysis=1)
-#'  fittedpar <- BP_GetFittedParameters(bone, analysis="logistic")
+#'  fittedpar <- BP_GetFittedParameters(bone, analysis="logistic", ML=TRUE, return.all=FALSE)[, "mean"]
 #'  bone <- BP_DuplicateAnalysis(bone, from="logistic", to="flexit")
 #'  bone <- BP_FitMLCompactness(bone, 
 #'                 fitted.parameters=c(fittedpar, K1=1, K2=1), 
 #'                 fixed.parameters=NULL, analysis="flexit")
-#'  compare_AIC(Logistic=BP_GetFittedParameters(bone, analysis="logistic", alloptim=TRUE), 
-#'              Flexit=BP_GetFittedParameters(bone, analysis="flexit", alloptim=TRUE))
+#'  compare_AIC(Logistic=BP_GetFittedParameters(bone, analysis="logistic", ML=TRUE, return.all=TRUE), 
+#'              Flexit=BP_GetFittedParameters(bone, analysis="flexit", ML=TRUE, return.all=TRUE))
 #'  out4p <- plot(bone, type="observations+model", analysis="logistic")
 #'  out6p <- plot(bone, type="observations+model", analysis="flexit")
 #'  bone <- BP_FitBayesianCompactness(bone, analysis="logistic")
@@ -44,12 +46,15 @@
 #' @export
 
 
-BP_FitBayesianCompactness <- function(bone=stop("A result from BP_FitMLCompactness() must be provided"),
-                                      priors=NULL, 
-                                      n.iter = 10000,
-                                      n.chains = 1,
-                                      n.adapt = 100,
-                                      thin = 1, analysis=1, silent=TRUE) {
+BP_FitBayesianCompactness <- function(bone=stop("A result from BP_FitMLCompactness() must be provided") ,
+                                      priors=NULL                                                       , 
+                                      n.iter = 10000                                                    ,
+                                      n.chains = 1                                                      ,
+                                      n.adapt = 5000                                                    ,
+                                      thin = 10                                                          , 
+                                      analysis=1                                                        , 
+                                      adaptive = TRUE                                                   , 
+                                      silent=TRUE                                                       ) {
   
   # priors=NULL; n.iter = 10000; n.chains = 1; n.adapt = 100; thin = 1, analysis=1
   
@@ -63,7 +68,7 @@ BP_FitBayesianCompactness <- function(bone=stop("A result from BP_FitMLCompactne
                          Min=numeric(), 
                          Max=numeric(), 
                          Init=numeric(), stringsAsFactors = FALSE)
-    p <- BP_GetFittedParameters(bone, analysis = analysis, alloptim = FALSE) 
+    p <- BP_GetFittedParameters(bone, analysis = analysis, ML=TRUE, return.all=FALSE)[, "mean"]
 
     if (!is.na(p["P"])) {
       priors <- rbind(priors, data.frame(Density="dunif", 
@@ -128,7 +133,7 @@ BP_FitBayesianCompactness <- function(bone=stop("A result from BP_FitMLCompactne
     if (!silent) priors
   }
   
-  fixedpar <- BP_GetFittedParameters(bone, analysis = analysis, alloptim = TRUE)$fixed.parameters
+  fixedpar <- BP_GetFittedParameters(bone, analysis = analysis, ML=TRUE, return.all = TRUE)$fixed.parameters
   
   mcmc <- MHalgoGen(
     likelihood = BP_LnLCompactness,
@@ -138,24 +143,24 @@ BP_FitBayesianCompactness <- function(bone=stop("A result from BP_FitMLCompactne
     parameters = priors, n.iter = n.iter,
     n.chains = n.chains,
     n.adapt = n.adapt,
-    thin = thin, adaptive = TRUE)
+    thin = thin, adaptive = adaptive)
   
   data <- RM_get(x=bone, RMname=analysis, valuename = "compactness.synthesis")
-  outmcmc <- matrix(NA, ncol=nrow(data), nrow=n.iter)
+  n.iter_x <- nrow(x = mcmc$resultMCMC[[1]])
+  outmcmc <- matrix(NA, ncol=nrow(data), nrow=n.iter_x)
   
-  for (iter in 1:n.iter) {
+  for (iter in 1:n.iter_x) {
     p <- c(mcmc$resultMCMC[[1]][iter, ], 
            fixedpar)
     
-    
-    Min <- p["Min"]
-    Max <- p["Max"]
+    # Min <- p["Min"]
+    # Max <- p["Max"]
     
     # 21/2/2020
-    p["S"] <- 1/(4*p["S"])
+    # p["S"] <- 1/(4*p["S"])
     
-    c <- flexit(x = data$distance.center, 
-                par = p) * (Max - Min) + Min
+    c <- BP_flexit(x = data$distance.center, 
+                par = p) # * (Max - Min) + Min
     
     outmcmc[iter, ] <- c
   }
@@ -164,6 +169,12 @@ BP_FitBayesianCompactness <- function(bone=stop("A result from BP_FitMLCompactne
   colnames(qmcmc) <- data$distance.center
   
   mcmc <- modifyList(mcmc, list(quantiles=qmcmc))
+  
+  outmcmc <- apply(X = outmcmc, MARGIN = 1, FUN = mean)
+  qmcmc <- quantile(outmcmc, probs = c(0.025, 0.5, 0.975))
+  
+  mcmc <- modifyList(mcmc, list(quantiles.global=qmcmc))
+  
   mcmc$timestamp <- date()
   
   mcmc$resultMCMC[[1]][, "Min"] <- mcmc$resultMCMC[[1]][, "Min"]

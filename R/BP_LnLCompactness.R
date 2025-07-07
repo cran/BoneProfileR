@@ -9,6 +9,7 @@
 #' @param data_nm Number of non-mineralized pixels
 #' @param distance.center Distances to the center
 #' @param analysis Name or rank of analysis
+#' @param sign The likelihood if multiplied by sign (-1 or +1) to return -Ln L or Ln L
 #' @description Estimation of the compactness of a bone section.
 #' @family BoneProfileR
 #' @examples
@@ -29,20 +30,21 @@
 BP_LnLCompactness <- function(par, bone=NULL, 
                               data_m=NULL, data_nm=NULL, 
                               distance.center=NULL,
-                              fixed.parameters=NULL, analysis=1) {
+                              fixed.parameters=NULL, 
+                              analysis=1, 
+                              sign = -1) {
   
   p <- c(par, fixed.parameters)
-  Min <- p["Min"]
-  Max <- p["Max"]
+  # Min <- p["Min"]
+  # Max <- p["Max"]
   
   # print(p)
   
   # 21/02/2020
-  p["S"] <- 1/(4*p["S"])
+  # p["S"] <- 1/(4*p["S"])
   
   
-  if (inherits(bone, "BoneProfileR")){
-    
+  if (inherits(bone, "BoneProfileR")) {
     # p <- c(P=0.5, S=0.1, K1=1, K2=1, Min=0.05, Max=0.99)
     data <- RM_get(x=bone, RMname=analysis, valuename = "compactness.synthesis")
     if (is.null(distance.center)) distance.center <- data$distance.center
@@ -50,20 +52,20 @@ BP_LnLCompactness <- function(par, bone=NULL,
     if (is.null(data_nm)) data_nm <- data$unmineralize
   }
   
-  data_m[length(data_m)] <- data_m[length(data_m)] + data_nm[length(data_nm)]
-  data_nm[length(data_nm)] <- 0
+  # data_m[length(data_m)] <- data_m[length(data_m)] + data_nm[length(data_nm)]
+  # data_nm[length(data_nm)] <- 0
   
-  c <- flexit(x = distance.center, 
-              par = p) * (Max - Min) + Min
-  
+  c <- BP_flexit(x = distance.center, 
+              par = p) # * (Max - Min) + Min
+  # print(d(c(c, p)))
   c <- ifelse(c<1E-10, 1E-10, c)
   c <- ifelse(c>1-1E-10, 1-(1E-10), c)
   L <- dbinom(x=data_m, 
               size = data_nm + data_m, 
               prob=c, log = TRUE)
   
-  LnL <- -sum(L)
-  if (is.na(LnL)) LnL <- 1E6
+  LnL <- sign * sum(L)
+  if (is.na(LnL)) LnL <- sign * -1E6 # < log(1E-250)
   # message(paste0("-LnL", as.character(LnL)))
   return(LnL)
 }

@@ -1,6 +1,24 @@
 THIS IS THE CHANGELOG OF THE "BoneProfileR" PACKAGE
 
-            CHANGES IN VERSION 3.1 (2024-08-24)
+            CHANGES IN VERSION 4.0 (2025-07-07)
+
+* New online version - 4.0 (2025-04-18)
+
+            CHANGES IN VERSION 3.3 (2025-04-18)
+
+* Main check version to validate outputs - 3.2 (2024-08-24)
+* Better check for partial reading - 3.2.1 (2024-12-11)
+* Better check tif reading - 3.2.2 (2024-12-12)
+* Correct the grid for partial slides - 3.2.3 (2024-12-12)
+* New periodic model - 3.2.4 (2024-12-30)
+* Big update and bug correction - 3.2.5 (2025-01-02)
+* Acceleration of flexit model - 3.2.6 (2025-01-02)
+* MCMC for periodic model - 3.2.7 (2025-01-03)
+* New options for plot - 3.2.8 (2025-01-10)
+* Correct a bug in radial analysis in Windows - 3.2.9 (2025-01-13)
+* Numerous checked sections and minor changes to make it more robust - 3.3 (2025-04-18)
+
+            CHANGES IN VERSION 3.1.1 (2024-11-19)
             
 * Preliminary version 3.0 that uses grayscale gradient - 3.0 (2024-07-21)
 * New algoritm to determine the contour of section with very irregular shape (thanks to Stephanie Baumgart to have identified this problem) - 3.0 (2024-08-22)

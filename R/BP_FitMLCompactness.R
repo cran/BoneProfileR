@@ -8,6 +8,7 @@
 #' @param priors Priors used for intermediate estimations
 #' @param replicates.CI Number of replicates to estimate confidence interval
 #' @param analysis Name or rank of analysis
+#' @param control.optim The list of options for optim.
 #' @param twosteps Does a 2-steps analysis be performed?
 #' @param silent Should information be shown?
 #' @description Estimation of the model of compactness of a bone section.\cr
@@ -33,43 +34,77 @@
 #'  plot(bone, type="unmineralized", show.grid=FALSE)
 #'  plot(bone, type="section", show.grid=FALSE)
 #'  bone <- BP_FitMLCompactness(bone, analysis="logistic", twosteps=TRUE)
-#'  BP_GetFittedParameters(bone)
+#'  BP_GetFittedParameters(bone, analysis="logistic", ML=TRUE, return.all=FALSE)
 #'  plot(bone)
 #'  plot(bone, type="observations")
 #'  plot(bone, type="observations+model", analysis=1)
 #'  bone <- BP_DuplicateAnalysis(bone, from="logistic", to="flexit")
-#'  fittedpar <- BP_GetFittedParameters(bone, analysis="logistic")
+#'  fittedpar <- BP_GetFittedParameters(bone, analysis="logistic", ML=TRUE, return.all=FALSE)[, "mean"]
 #'  bone <- BP_DuplicateAnalysis(bone, from="logistic", to="flexit")
 #'  BP_ListAnalyses(bone)
 #'  bone <- BP_FitMLCompactness(bone, 
 #'                 fitted.parameters=c(fittedpar, K1=1, K2=1), 
 #'                 fixed.parameters=NULL, analysis="flexit", twosteps=TRUE)
-#'  compare_AIC(Logistic=BP_GetFittedParameters(bone, analysis="logistic", alloptim=TRUE), 
-#'              Flexit=BP_GetFittedParameters(bone, analysis="flexit", alloptim=TRUE))
+#'  compare_AIC(Logistic=BP_GetFittedParameters(bone, analysis="logistic", , ML=TRUE, return.all=TRUE), 
+#'              Flexit=BP_GetFittedParameters(bone, analysis="flexit", , ML=TRUE, return.all=TRUE))
 #'  out4p <- plot(bone, type="observations+model", analysis="logistic")
 #'  out6p <- plot(bone, type="observations+model", analysis="flexit")
 #' }
 #' @export
 
 
-BP_FitMLCompactness <- function(bone, fitted.parameters=c(P=0.5, S=0.05, Min=0.001, Max=0.999),
-                                priors=NULL, 
-                                fixed.parameters=c(K1=1, K2=1), twosteps=TRUE, 
-                                replicates.CI=10000, analysis=1, silent=FALSE) {
+BP_FitMLCompactness <- function(bone                                                     , 
+                                fitted.parameters=c(P=0.5, S=0.02, Min=0.001, Max=0.999)  ,
+                                priors=NULL                                              , 
+                                fixed.parameters=c(K1=1, K2=1)                           , 
+                                twosteps=TRUE                                            , 
+                                replicates.CI=10000                                      , 
+                                analysis=1                                               , 
+                                control.optim=list(trace=1)                              ,
+                                silent=FALSE                                             ) {
   
-  # fitted.parameters=c(P=0.5, S=0.05, Min=-2, Max=5); fixed.parameters=c(K1=1, K2=1); analysis=1
+  # fitted.parameters=c(P=0.5, S=1.5, Min=0, Max=1); fixed.parameters=c(K1=1, K2=1); analysis=1
   
   # BP_LnLCompactness(par=fitted.parameters, bone, data_m=NULL, data_nm=NULL, distance.center=NULL, fixed.parameters=fixed.parameters, analysis=analysis)
   
+  # oripar <- c(fitted.parameters, fixed.parameters)
   
-  lower_limit <- c(P=0, S=-2, Min=0, Max=0.2, K1=-1000, k2=-1000)
-  upper_limit <- c(P=1, S=2, Min=0.8, Max=1, K1=1000, k2=1000)
+  # fitted.parameters <- c('P' = 0.55788766378976506, 
+  #                        'S' = 0.028114536950945603, 
+  #                        'Min' = 0.060170958543357682, 
+  #                        'Max' = 0.96013516282799549)
+  # fixed.parameters=c(K1=1, K2=1); analysis=1
+  
+  lower_limit <- c(P=0, S=-2, Min=0, Max=0.2, K1=-1000, K2=-1000)
+  upper_limit <- c(P=1, S=2, Min=0.8, Max=1, K1=1000, K2=1000)
   lower <- lower_limit[names(fitted.parameters)]
   upper <- upper_limit[names(fitted.parameters)]
   
+  fitted.parameters[names(upper)] <- ifelse(fitted.parameters[names(upper)] >= upper, upper-0.001*upper, fitted.parameters[names(upper)])
+  fitted.parameters[names(lower)] <- ifelse(fitted.parameters[names(lower)] <= lower, lower+0.001*lower, fitted.parameters[names(lower)])
+  
+  if (is.null(analysis)) {
+    stop("You must choose which analysis to fit.")
+  }
+  
+  out <- RM_list(x=bone, silent=TRUE)
+  if (is.numeric(analysis))
+    if (analysis > length(out)) {
+      stop("The analysis does no exist.")
+    } else {
+      analysis <- names(out)[analysis]
+    }
+  
+  if (is.character(analysis) & (all(analysis != names(out)))) {
+    stop(paste("The analysis", analysis, "does not exit. Check your data."))
+  }
+  
+  # BP_LnLCompactness(par=fitted.parameters, fixed.parameters=fixed.parameters, bone=bone)
   o <- optim(par=fitted.parameters, fn=BP_LnLCompactness, 
              fixed.parameters=fixed.parameters, bone=bone, 
              upper = upper, lower = lower, 
+             sign = -1, 
+             control=modifyList(list(maxit=1000), control.optim), 
              method = "L-BFGS-B", hessian = TRUE, analysis=analysis)
   
   if (twosteps) {
@@ -145,21 +180,33 @@ BP_FitMLCompactness <- function(bone, fitted.parameters=c(P=0.5, S=0.05, Min=0.0
                                            row.names = "K2"))
       }
     }
-    mcmc <- HelpersMG::MHalgoGen(
+    mcmc <- MHalgoGen(
       likelihood = BP_LnLCompactness,
       bone=bone, 
       fixed.parameters=fixed.parameters, 
+      sign = -1, 
       parameters_name = "par", 
-      parameters = priors, n.iter = 10000,
+      parameters = priors, 
+      n.iter = 10000,
       n.chains = 1,
-      n.adapt = 100,
+      n.adapt = 5000,
       thin = 1, adaptive = TRUE)
     
-    fitted.parameters <- HelpersMG::as.parameters(mcmc)
+    fitted.parameters <- as.parameters(mcmc)
+    
+    # upper <- upper[names(lower)]
+    fitted.parameters <- fitted.parameters[names(upper)]
+    
+    fitted.parameters[names(upper)] <- ifelse(fitted.parameters[names(upper)] >= upper, upper-0.01*upper, fitted.parameters[names(upper)])
+    fitted.parameters[names(lower)] <- ifelse(fitted.parameters[names(lower)] <= lower, lower+0.01*lower, fitted.parameters[names(lower)])
+    
+    # BP_LnLCompactness(par=par$par, bone=bone, fixed.parameters=fixed.parameters, analysis=analysis)
     
     o <- optim(par=fitted.parameters, fn=BP_LnLCompactness, 
                fixed.parameters=fixed.parameters, bone=bone, 
+               sign = -1, 
                upper = upper, lower = lower, 
+               control=modifyList(list(maxit=1000), control.optim), 
                method = "L-BFGS-B", hessian = TRUE, analysis=analysis)
   }
   
@@ -174,11 +221,11 @@ BP_FitMLCompactness <- function(bone, fitted.parameters=c(P=0.5, S=0.05, Min=0.0
                                 replicates = replicates.CI, 
                                 probs = NULL, silent = silent)
   
-  Min <- rd$random[, "Min"]
-  Max <- rd$random[, "Max"] 
-  
-  rd$random[, "Min"] <- Min
-  rd$random[, "Max"] <- Max
+  # Min <- rd$random[, "Min"]
+  # Max <- rd$random[, "Max"] 
+  # 
+  # rd$random[, "Min"] <- Min
+  # rd$random[, "Max"] <- Max
   
   m <- matrix(data =c(apply(rd$random, MARGIN=2, FUN=mean), apply(rd$random, MARGIN=2, FUN=sd)), 
               ncol=2)
@@ -197,10 +244,10 @@ BP_FitMLCompactness <- function(bone, fitted.parameters=c(P=0.5, S=0.05, Min=0.0
     p <- unlist(rd$random[iter, , drop=TRUE])
     
     # 21/02/2020
-    p["S"] <- 1/(4*p["S"])
+    # p["S"] <- 1/(4*p["S"])
     
-    c <- flexit(x = data$distance.center, 
-                par = p) * (p["Max"] - p["Min"]) + p["Min"]
+    c <- BP_flexit(x = data$distance.center, 
+                par = p) # * (p["Max"] - p["Min"]) + p["Min"]
     
     outHessian[iter, ] <- c
   }

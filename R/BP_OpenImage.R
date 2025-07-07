@@ -46,6 +46,13 @@ BP_OpenImage <- function(file=file.choose(), name=NULL, ijtiff=FALSE) {
       bone <- suppressWarnings(tiff::readTIFF(file))
       if (length(dim(bone))==3) {
         bone <- aperm(bone, c(2, 1, 3))
+        
+        bone_pre <- array(data = NA, dim=c(dim(bone)[1], dim(bone)[2], 1, dim(bone)[3]))
+        bone_pre[, , 1, 1] <- bone[, , 1]
+        if (dim(bone)[3] >= 2) bone_pre[, , 1, 2] <- bone[, , 2]
+        if (dim(bone)[3] >= 3) bone_pre[, , 1, 3] <- bone[, , 3]
+        if (dim(bone)[3] == 4) bone_pre[, , 1, 4] <- bone[, , 4]
+        bone <- bone_pre
       } else {
         bone_pre <- array(data = NA, dim=c(dim(bone)[2], dim(bone)[1], 1, 1))
         bone_pre[, , 1, 1] <- bone

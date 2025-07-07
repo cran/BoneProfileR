@@ -6,12 +6,13 @@
 \usage{
 BP_FitMLCompactness(
   bone,
-  fitted.parameters = c(P = 0.5, S = 0.05, Min = 0.001, Max = 0.999),
+  fitted.parameters = c(P = 0.5, S = 0.02, Min = 0.001, Max = 0.999),
   priors = NULL,
   fixed.parameters = c(K1 = 1, K2 = 1),
   twosteps = TRUE,
   replicates.CI = 10000,
   analysis = 1,
+  control.optim = list(trace = 1),
   silent = FALSE
 )
 }
@@ -30,6 +31,8 @@ BP_FitMLCompactness(
 
 \item{analysis}{Name or rank of analysis}
 
+\item{control.optim}{The list of options for optim.}
+
 \item{silent}{Should information be shown?}
 }
 \value{
@@ -37,7 +40,7 @@ The -Ln L
 }
 \description{
 Estimation of the model of compactness of a bone section.\cr
-The two-steps analysis performs first a quasi-Newton method, then a Bayesian MCMC and finally again a quasi-Newton method. 
+The two-steps analysis performs first a quasi-Newton method, then a Bayesian MCMC and finally again a quasi-Newton method.
 It generally ensures that global minimum is found. On the other hand, it doubles the time to complete.
 }
 \details{
@@ -62,19 +65,19 @@ path_Hedgehog <- system.file("extdata", "Erinaceus_europaeus_fem_2-1_small.png",
  plot(bone, type="unmineralized", show.grid=FALSE)
  plot(bone, type="section", show.grid=FALSE)
  bone <- BP_FitMLCompactness(bone, analysis="logistic", twosteps=TRUE)
- BP_GetFittedParameters(bone)
+ BP_GetFittedParameters(bone, analysis="logistic", ML=TRUE, return.all=FALSE)
  plot(bone)
  plot(bone, type="observations")
  plot(bone, type="observations+model", analysis=1)
  bone <- BP_DuplicateAnalysis(bone, from="logistic", to="flexit")
- fittedpar <- BP_GetFittedParameters(bone, analysis="logistic")
+ fittedpar <- BP_GetFittedParameters(bone, analysis="logistic", ML=TRUE, return.all=FALSE)[, "mean"]
  bone <- BP_DuplicateAnalysis(bone, from="logistic", to="flexit")
  BP_ListAnalyses(bone)
  bone <- BP_FitMLCompactness(bone, 
                 fitted.parameters=c(fittedpar, K1=1, K2=1), 
                 fixed.parameters=NULL, analysis="flexit", twosteps=TRUE)
- compare_AIC(Logistic=BP_GetFittedParameters(bone, analysis="logistic", alloptim=TRUE), 
-             Flexit=BP_GetFittedParameters(bone, analysis="flexit", alloptim=TRUE))
+ compare_AIC(Logistic=BP_GetFittedParameters(bone, analysis="logistic", , ML=TRUE, return.all=TRUE), 
+             Flexit=BP_GetFittedParameters(bone, analysis="flexit", , ML=TRUE, return.all=TRUE))
  out4p <- plot(bone, type="observations+model", analysis="logistic")
  out6p <- plot(bone, type="observations+model", analysis="flexit")
 }
@@ -91,6 +94,8 @@ Other BoneProfileR:
 \code{\link{BP_DuplicateAnalysis}()},
 \code{\link{BP_EstimateCompactness}()},
 \code{\link{BP_FitBayesianCompactness}()},
+\code{\link{BP_FitBayesianPeriodicCompactness}()},
+\code{\link{BP_FitMLPeriodicCompactness}()},
 \code{\link{BP_FitMLRadialCompactness}()},
 \code{\link{BP_GetFittedParameters}()},
 \code{\link{BP_ListAnalyses}()},

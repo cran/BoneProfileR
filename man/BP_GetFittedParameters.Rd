@@ -4,20 +4,33 @@
 \alias{BP_GetFittedParameters}
 \title{Return the fitted parameters}
 \usage{
-BP_GetFittedParameters(bone, analysis = 1, alloptim = FALSE)
+BP_GetFittedParameters(
+  bone,
+  analysis = 1,
+  return.all = FALSE,
+  ML = TRUE,
+  periodic = FALSE,
+  type = "global"
+)
 }
 \arguments{
 \item{bone}{The bone image to be used}
 
 \item{analysis}{Name or rank of analysis}
 
-\item{alloptim}{If TRUE, return the complete object returned by optim}
+\item{return.all}{If TRUE, return the complete object}
+
+\item{ML}{If TRUE, return the ML estimate and the SE ; if FALSE, returns the MCMC estimate}
+
+\item{periodic}{If TRUE, the periodic model is used (depreciated, use type)}
+
+\item{type}{Can be "global", "radial", or "periodic"}
 }
 \value{
 The fitted parameters
 }
 \description{
-Return the fitted parameters.
+Return the fitted parameters or complete object.
 }
 \details{
 BP_GetFittedParameters returns the fitted parameters
@@ -49,7 +62,9 @@ Other BoneProfileR:
 \code{\link{BP_DuplicateAnalysis}()},
 \code{\link{BP_EstimateCompactness}()},
 \code{\link{BP_FitBayesianCompactness}()},
+\code{\link{BP_FitBayesianPeriodicCompactness}()},
 \code{\link{BP_FitMLCompactness}()},
+\code{\link{BP_FitMLPeriodicCompactness}()},
 \code{\link{BP_FitMLRadialCompactness}()},
 \code{\link{BP_ListAnalyses}()},
 \code{\link{BP_LnLCompactness}()},
